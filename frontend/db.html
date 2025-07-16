@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        /* --- Modern White & Blue Theme --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-blue: #007BFF;
+            --primary-blue-light: #e6f2ff;
+            --dark-charcoal: #343a40;
+            --mid-gray: #6c757d;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --white: #ffffff;
+            --red: #dc3545;
+            --green: #28a745;
+        }
+
+        /* --- Base & Layout --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-charcoal);
+            font-size: 16px;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--primary-blue);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .sidebar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 25px;
+            color: var(--mid-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .sidebar-nav .nav-link svg {
+            width: 20px;
+            height: 20px;
+        }
+        .sidebar-nav .nav-link:hover {
+            color: var(--primary-blue);
+            background-color: var(--primary-blue-light);
+        }
+        .sidebar-nav .nav-link.active {
+            color: var(--primary-blue);
+            background-color: var(--primary-blue-light);
+            font-weight: 600;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow: auto;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .card h2, .card h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        /* General status styling */
+.status-confirmed, .status-pending, .status-cancelled {
+    padding: 5px 10px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+        /* Specific colors for each status */
+        .status-confirmed {
+            background-color: #28a745; /* Green */
+        }
+
+        .status-pending {
+            background-color: #ffc107; /* Orange/Yellow */
+        }
+
+        .status-cancelled {
+            background-color: #dc3545; /* Red */
+        }
+
+        /* --- Tables --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+        thead th {
+            font-weight: 600;
+            color: var(--dark-charcoal);
+        }
+        tbody tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        /* --- Forms --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px var(--primary-blue-light);
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 18px;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: var(--white);
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .action-buttons button, .action-buttons a {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            margin-right: 5px;
+            text-decoration: none;
+        }
+        .btn-edit { background-color: #ffc107; color: var(--dark-charcoal); border-radius: 6px; display: inline-block; }
+        .btn-delete { background-color: var(--red); color: var(--white); }
+
+        /* --- Utilities --- */
+        .table-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+        .mt-20 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">ADMIN PANEL</div>
+            <ul class="sidebar-nav">
+                                <li><a href="#" class="nav-link {% if not active_tab or active_tab == 'bookings' %}active{% endif %}" data-target="bookings">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C5.34315 3 4 4.34315 4 6V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V7L17 3ZM16 14H8V12H16V14ZM16 18H8V16H16V18ZM15 4V8H19V10L15 4Z"></path></svg>
+                    <span>Bookings</span>
+                </a></li>
+                                <li><a href="#" class="nav-link {% if active_tab == 'restaurants' %}active{% endif %}" data-target="restaurants">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11L12 3L21 11V20ZM19 18V12L12 5.69L5 12V18H19ZM13 13H11V16H13V13Z"></path></svg>
+                    <span>Restaurants</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-target="menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+                    <span>Menu</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-target="special-events">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C11.4477 2 11 2.44772 11 3V4.0511C7.53856 4.55524 5 7.49836 5 11V12.046C5 13.6003 4.32189 15.0645 3.17811 16H20.8219C19.6781 15.0645 19 13.6003 19 12.046V11C19 7.49836 16.4614 4.55524 13 4.0511V3C13 2.44772 12.5523 2 12 2ZM9.5 17C9.5 18.3807 10.6193 19.5 12 19.5C13.3807 19.5 14.5 18.3807 14.5 17H9.5Z"></path></svg>
+                    <span>Special Events</span>
+                </a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            
+                        <section id="bookings" class="content-section {% if not active_tab or active_tab == 'bookings' %}active{% endif %}">
+                <div class="card">
+                    <h2>Bookings</h2>
+                    <!-- Booking content remains static for this example -->
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Restaurant</th>
+                                <th>Status</th>
+                                <th>Reservation For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD123</td>
+                                <td>The Gourmet Kitchen</td>
+                                <td>Confirmed</td>
+                                <td>John Doe</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+                        <section id="restaurants" class="content-section {% if active_tab == 'restaurants' %}active{% endif %}">
+                <div class="card">
+                    <h2>Restaurants</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th> ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Address</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- This is now a Jinja2 template loop. It builds the table on the server. -->
+                            {% for restaurant in restaurants %}
+                            <tr>
+                                <td> {{ restaurant.id or 'NA' }}</td>
+                                <td>{{ restaurant.name or 'N/A' }}</td>
+                                <td>{{ restaurant.description or 'N/A' }}</td>
+                                <td><a href="{{ restaurant.address }}" target="_blank">View Map</a></td>
+                                <td class="action-buttons">
+                                   
+                                    <form action="/delete-restaurant" method="POST" style="display: inline; margin: 0;">
+                                        <input type="hidden" name="id" value="{{ restaurant.id }}">
+                                        <button type="submit" class="btn btn-delete">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4">No restaurants found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h3>Add New Restaurant</h3>
+                    <form id="Delete restaurant" class="form-grid" method="POST" action="http://127.0.0.1:8000/send" enctype="multipart/form-data">
+
+                        <div class="form-group">
+                            <label for="name">Restaurant Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Location (GeoMap Link)</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="res-pictures">Pictures</label>
+                            <input type="file" id="res-pictures" name="pictures" accept="image/*" multiple>
+                        </div>
+                        <div id="file-list" style="grid-column: 1 / -1;"></div>
+                        <button type="submit" class="btn btn-primary mt-20">Add Restaurant</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Edit a restaurant</h3>
+                    <form id="Delete restaurant" class="form-grid" method="POST" action="http://127.0.0.1:8000/editrestaurant" enctype="multipart/form-data">
+                        
+                        <div class="form-group">
+                            <label for="name">id</label>
+                            <input type="int" id="id" name="id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Restaurant Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Location (GeoMap Link)</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="res-pictures">Pictures</label>
+                            <input type="file" id="res-pictures" name="pictures" accept="image/*" multiple>
+                        </div>
+                        <div id="file-list" style="grid-column: 1 / -1;"></div>
+                        <button type="submit" class="btn btn-primary mt-20">Add Restaurant</button>
+                    </form>
+                </div>
+            </section>
+            
+
+                <section id="menu" class="content-section {% if active_tab == 'menu' %}active{% endif %}">
+                <div class="card">
+                    <h2>Menu Items</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Item Name</th>
+                                <th>Restaurant</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example Row -->
+                            <tr>
+                                <td><img src="https://via.placeholder.com/50" alt="Menu Item" class="table-picture"></td>
+                                <td>Classic Burger</td>
+                                <td>The Gourmet Kitchen</td>
+                                <td>$9.99</td>
+                                <td class="action-buttons">
+                                    <a href="#" class="btn btn-edit">Edit</a>
+                                    <button class="btn btn-delete">Delete</button>
+                                </td>
+                            </tr>
+                            <!-- Data will be populated here, possibly with Jinja2 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>Add New Menu Item</h3>
+                    <form id="add-menu-item-form" class="form-grid" method="POST" action="/add-menu-item" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="menu-restaurant-select">Select Restaurant</label>
+                            <select id="menu-restaurant-select" name="restaurant_id" required>
+                                <option value="" disabled selected>Choose a restaurant...</option>
+                                <!-- Options will be populated dynamically -->
+                                {% for restaurant in restaurants %}
+                                <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-name">Item Name</label>
+                            <input type="text" id="item-name" name="name" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="item-description">Description</label>
+                            <textarea id="item-description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-price">Price</label>
+                            <input type="text" id="item-price" name="price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-picture">Picture</label>
+                            <input type="file" id="item-picture" name="picture" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-20" style="grid-column: 1 / -1;">Add Menu Item</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="special-events" class="content-section {% if active_tab == 'special-events' %}active{% endif %}">
+                <div class="card">
+                    <h2>Special Events</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event Name</th>
+                                <th>Restaurant</th>
+                                <th>Date and Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example Row -->
+                            <tr>
+                                <td>Live Jazz Night</td>
+                                <td>The Gourmet Kitchen</td>
+                                <td>2025-08-15 20:00</td>
+                                <td class="action-buttons">
+                                    <a href="#" class="btn btn-edit">Edit</a>
+                                    <button class="btn btn-delete">Delete</button>
+                                </td>
+                            </tr>
+                            <!-- Data will be populated here, possibly with Jinja2 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>Add Event</h3>
+                    <form id="add-event-form" class="form-grid" method="POST" action="/add-event" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="event-name">Event/Singer Name</label>
+                            <input type="text" id="event-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-datetime">Time and Date</label>
+                            <input type="datetime-local" id="event-datetime" name="datetime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-restaurant-select">Select Restaurant</label>
+                            <select id="event-restaurant-select" name="restaurant_id" required>
+                                <option value="" disabled selected>Choose a restaurant...</option>
+                                <!-- Options will be populated dynamically -->
+                                {% for restaurant in restaurants %}
+                                <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                         <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="event-description">Description</label>
+                            <textarea id="event-description" name="description" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-20" style="grid-column: 1 / -1;">Add Event</button>
+                    </form>
+                </div>
+            </section>
+                </section>
+                
+            <section id="special-events" class="content-section">
+                <!-- Special Events content here -->
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // --- Navigation and Form Submission Logic ---
+        // This JavaScript remains as it controls UI interactions that are not data-loading.
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            // --- Navigation Logic ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    this.classList.add('active');
+
+                    contentSections.forEach(section => {
+                        section.classList.toggle('active', section.id === targetId);
+                    });
+                });
+            });
+
+            // --- Add Restaurant Form Submission Logic ---
+            const addRestaurantForm = document.getElementById('add-restaurant-form');
+            const fileInput = document.getElementById('res-pictures');
+            
+            addRestaurantForm.addEventListener('submit', async function(event) {
+                
+            
+                if (fileInput.files.length > 5) {
+                    alert("You can only select 5 pictures");
+                    fileInput.value = '';
+                    return;
+                }
+            
+                const formData = new FormData(addRestaurantForm);
+            
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/send', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        alert('Restaurant added successfully!');
+                        addRestaurantForm.reset();
+                        // Optionally, reload the page to see the new restaurant
+                        window.location.reload(); 
+                    } else {
+                        alert('Failed to add restaurant. Please check the details.');
+                    }
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    alert('Something went wrong. Please try again.');
+                }
+            });
+        });
+
+        // The 'fetchAndDisplayRestaurants' function has been REMOVED.
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Ignore python cache
+__pycache__/
+
+# Ignore environment file
+.env
+*.env
+password.env
+
+# Ignore user-uploaded files
+frontend/uploads/

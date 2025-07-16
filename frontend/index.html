@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's grab a meal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for easier theme management */
+        :root { /*psuedo class :root*/
+            --primary-orange: #FF8C00; /* Deep Orange */
+            --darker-orange: #E67E00; /* Slightly darker for hover */
+            --text-light: #f5f5f5; /* Off-white for main text */
+            --text-shadow-color: rgba(0, 0, 0, 0.6); /* Darker shadow for readability */
+            --overlay-color: rgba(0, 0, 0, 0.4); /* Semi-transparent black overlay */
+        }
+
+
+        body { /* css selector */
+            margin: 0;
+            padding: 0;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            justify-content: center; /* Center content horizontally */
+            align-items: center; /* Center content vertically */
+            background-image: url('foodpic.jpeg'); /* Your uploaded image filename */
+            background-size: cover; /* Make image cover the entire area */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat; /* Prevent image repetition */
+            flex-direction: column; /* Stack elements vertically (headline, tagline, button) */
+            position: relative; /* Needed for the overlay and z-index */
+            overflow: hidden; /* Prevents scrollbars from animation overflow */
+            font-family: 'Montserrat', sans-serif; /* Default font for the body */
+        }
+
+        /* Optional: Add a semi-transparent overlay for better text readability */
+        body::before { 
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--overlay-color);
+            z-index: 0; /* Place behind the main content */
+        }
+
+        /* Container for the headline, tagline, and button */
+        .content-container {
+            text-align: center;
+            color: var(--text-light); /* White text on the dark overlay */
+            z-index: 1; /* Ensure content is above the overlay */
+            padding: 20px;
+            max-width: 90%; /* Make content responsive */
+            box-sizing: border-box; /* Include padding in width */
+            opacity: 0; /* Start hidden for animation */
+            animation: fadeIn 1.5s forwards; /* Apply fade-in animation */
+            animation-delay: 0.5s; /* Delay the animation slightly */
+        }
+
+        .main-title {
+            font-family: 'Playfair Display', serif; /* A more elegant font for the title */
+            font-size: 3.8em; /* Larger, more impactful title */
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px var(--text-shadow-color); /* Shadow for readability */
+            line-height: 1.1; /* Adjust line height for tighter spacing */
+            font-weight: 700; /* Bold title */
+        }
+
+        .tagline {
+            font-size: 1.6em; /* Good size for a tagline */
+            margin-bottom: 40px; /* Space between tagline and button */
+            text-shadow: 1px 1px 3px var(--text-shadow-color); /* Subtle shadow */
+            font-weight: 400;
+        }
+
+        /* Button styling */
+        .y {
+            background-color: var(--primary-orange);
+            color: black;
+            padding: 18px 35px; /* Increased padding for a larger button */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 10px; /* Slightly more rounded corners */
+            font-size: 1.3em; /* Larger font for button text */
+            font-weight: 700; /* Bold text */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow for depth */
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions for interactivity */
+            letter-spacing: 0.05em; /* Slightly spaced letters */
+        }
+
+        .y:hover {
+            background-color: var(--darker-orange); /* Darker orange on hover */
+            transform: translateY(-3px); /* Subtle lift effect */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+        }
+
+        /* Keyframes for the fade-in animation */
+        @keyframes fadeIn { /*css at rule*/
+            from {
+                opacity: 0;
+                transform: translateY(20px); /* Start slightly below */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); /* Move to original position */
+            }
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.8em;
+            }
+            .tagline {
+                font-size: 1.3em;
+            }
+            .y {
+                font-size: 1.1em;
+                padding: 15px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2.2em;
+            }
+            .tagline {
+                font-size: 1em;
+                margin-bottom: 30px;
+            }
+            .y {
+                font-size: 0.9em;
+                padding: 12px 25px;
+            }
+        }
+
+    </style>
+</head> 
+<body>
+
+    <div class="content-container">
+        <h1 class="main-title">NightBite</h1>
+        <p class="tagline">Placeholder random quote</p>
+        <a href="df.html" class="y">
+          Let's grab a meal
+        </a>
+    </div>
+
+</body>
+</html>
