@@ -42,8 +42,8 @@ async def login_user(email: Annotated[str, Form()], password: Annotated[str, For
         database=os.getenv("DB_NAME")
     )
     cursor = db_connection.cursor()
-    
-    query = "SELECT * FROM newestone.users WHERE email = %s"
+     
+    query = "select * from newestone.users where email = %s"
     cursor.execute(query, (email,))
     data = cursor.fetchone()
     
@@ -144,11 +144,20 @@ async def show_restaurants_page(request: Request):
     )
     cursor = db_connection.cursor()
     
-    query = "SELECT * FROM newestone.restaurants"
+    query = "select * from newestone.restaurants"
     cursor.execute(query)
     
     columns = [column[0] for column in cursor.description]
-    restaurant_data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    restaurant_data = []
+    for row in cursor.fetchall():
+        restaurant_data.append(dict(zip(columns, row)))
+
+    # also fetch events so special-events tab remains populated
+    cursor.execute("select id, name, event_name, event_description, event_datetime from newestone.restaurants")
+    columns_ev = [col[0] for col in cursor.description]
+    event_data = []
+    for row in cursor.fetchall():
+        event_data.append(dict(zip(columns_ev, row)))
 
     cursor.close()
     db_connection.close()
@@ -156,6 +165,7 @@ async def show_restaurants_page(request: Request):
     return templates.TemplateResponse("db.html", {
         "request": request,
         "restaurants": restaurant_data,
+        "events": event_data,
         "active_tab" : "restaurants"
     })
 
@@ -175,7 +185,110 @@ async def delete_by_id(id : Annotated[int, Form()]):
     query = " delete from newestone.restaurants where id = %s"
     print(id)
     cursor.execute(query, (id,))
-    # cursor.close()
     db_connection.commit()
     
     return RedirectResponse(url= "/restaurants", status_code= status.HTTP_303_SEE_OTHER)
+
+
+@app.post("/delete-event")
+async def delete_event_by_id(id : Annotated[int, Form()]):
+    
+    db_connection = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
+    )
+     
+    cursor = db_connection.cursor()
+    
+    query = " delete from newestone.restaurants where id = %s"
+    print(id)
+    cursor.execute(query, (id,))
+    db_connection.commit()
+    
+    return RedirectResponse(url= "/events", status_code= status.HTTP_303_SEE_OTHER)
+
+@app.get("/events")
+async def show_events_page(request: Request):
+    db_connection = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
+    )
+    cursor = db_connection.cursor()
+    
+    query = "select id, name, event_name, event_description, event_datetime from newestone.restaurants"
+    cursor.execute(query)
+    
+    columns = [column[0] for column in cursor.description]
+    event_data = []
+    for row in cursor.fetchall():
+        event_data.append(dict(zip(columns, row)))
+
+    # fetch restaurant list for dropdown
+    cursor.execute("select id, name from newestone.restaurants")
+    columns_rest = [col[0] for col in cursor.description]
+    restaurants = []
+    for row in cursor.fetchall():
+        restaurants.append(dict(zip(columns_rest, row)))
+
+    cursor.close()
+    db_connection.close()
+
+    return templates.TemplateResponse("db.html", {
+        "request": request,
+        "events": event_data,
+        "restaurants": restaurants,
+        "active_tab" : "special-events"
+    })
+
+@app.post("/add-event")
+async def add_event(
+    restaurant_id: Annotated[int, Form()],
+    name: Annotated[str, Form()],
+    description: Annotated[str, Form()],
+    datetime: Annotated[str, Form()]
+):
+    db_connection = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
+    )
+    cursor = db_connection.cursor()
+
+    update_query = (
+        "update newestone.restaurants "
+        "set event_name = %s, event_description = %s, event_datetime = %s "
+        "where id = %s"
+    )
+    cursor.execute(update_query, (name, description, datetime, restaurant_id))
+    db_connection.commit()
+    cursor.close()
+    db_connection.close()
+
+    return RedirectResponse(url="/events", status_code=status.HTTP_303_SEE_OTHER)
+
+@app.post("/clear-event")
+async def clear_event(id: Annotated[int, Form()]):
+    db_connection = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
+    )
+    cursor = db_connection.cursor()
+    clear_query = (
+        "update newestone.restaurants "
+        "set event_name = NULL, event_description = NULL, event_datetime = NULL "
+        "where id = %s"
+    )
+    cursor.execute(clear_query, (id,))
+    db_connection.commit()
+    cursor.close()
+    db_connection.close()
+
+    return RedirectResponse(url="/events", status_code=status.HTTP_303_SEE_OTHER)
+

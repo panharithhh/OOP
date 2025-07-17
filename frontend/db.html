@@ -390,8 +390,7 @@
                                 <td>The Gourmet Kitchen</td>
                                 <td>$9.99</td>
                                 <td class="action-buttons">
-                                    <a href="#" class="btn btn-edit">Edit</a>
-                                    <button class="btn btn-delete">Delete</button>
+                                                                        <button class="btn btn-delete">Delete</button>
                                 </td>
                             </tr>
                             <!-- Data will be populated here, possibly with Jinja2 -->
@@ -408,7 +407,7 @@
                                 <option value="" disabled selected>Choose a restaurant...</option>
                                 <!-- Options will be populated dynamically -->
                                 {% for restaurant in restaurants %}
-                                <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                                <option value="{{ restaurant.id }}">{{ restaurant.id }} – {{ restaurant.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -446,17 +445,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Example Row -->
+                            {% if events %}
+                            {% for ev in events %}
                             <tr>
-                                <td>Live Jazz Night</td>
-                                <td>The Gourmet Kitchen</td>
-                                <td>2025-08-15 20:00</td>
+                                <td>{{ ev.event_name if ev.event_name else '—' }}</td>
+                                <td>{{ ev.name }}</td>
+                                <td>{{ ev.event_datetime if ev.event_datetime else '—' }}</td>
                                 <td class="action-buttons">
-                                    <a href="#" class="btn btn-edit">Edit</a>
-                                    <button class="btn btn-delete">Delete</button>
+                                    <form method="POST" action="/clear-event">
+                                        <input type="hidden" name="id" value="{{ ev.id }}">
+                                        <button class="btn btn-delete">Empty</button>
+                                    </form>
                                 </td>
                             </tr>
-                            <!-- Data will be populated here, possibly with Jinja2 -->
+                            {% endfor %}
+                            {% else %}
+                            <tr><td colspan="4">No events</td></tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -478,7 +483,7 @@
                                 <option value="" disabled selected>Choose a restaurant...</option>
                                 <!-- Options will be populated dynamically -->
                                 {% for restaurant in restaurants %}
-                                <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                                <option value="{{ restaurant.id }}">{{ restaurant.id }} – {{ restaurant.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
