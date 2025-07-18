@@ -270,60 +270,89 @@
         <nav class="sidebar">
             <div class="sidebar-header">ADMIN PANEL</div>
             <ul class="sidebar-nav">
-                                <li><a href="#" class="nav-link {% if not active_tab or active_tab == 'bookings' %}active{% endif %}" data-target="bookings">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C5.34315 3 4 4.34315 4 6V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V7L17 3ZM16 14H8V12H16V14ZM16 18H8V16H16V18ZM15 4V8H19V10L15 4Z"></path></svg>
-                    <span>Bookings</span>
-                </a></li>
-                                <li><a href="#" class="nav-link {% if active_tab == 'restaurants' %}active{% endif %}" data-target="restaurants">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11L12 3L21 11V20ZM19 18V12L12 5.69L5 12V18H19ZM13 13H11V16H13V13Z"></path></svg>
-                    <span>Restaurants</span>
-                </a></li>
-                <li><a href="#" class="nav-link" data-target="menu">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
-                    <span>Menu</span>
-                </a></li>
-                <li><a href="#" class="nav-link" data-target="special-events">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C11.4477 2 11 2.44772 11 3V4.0511C7.53856 4.55524 5 7.49836 5 11V12.046C5 13.6003 4.32189 15.0645 3.17811 16H20.8219C19.6781 15.0645 19 13.6003 19 12.046V11C19 7.49836 16.4614 4.55524 13 4.0511V3C13 2.44772 12.5523 2 12 2ZM9.5 17C9.5 18.3807 10.6193 19.5 12 19.5C13.3807 19.5 14.5 18.3807 14.5 17H9.5Z"></path></svg>
-                    <span>Special Events</span>
-                </a></li>
+                <li>
+                    <a href="#" class="nav-link" data-target="bookings">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C5.34315 3 4 4.34315 4 6V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V7L17 3ZM16 14H8V12H16V14ZM16 18H8V16H16V18ZM15 4V8H19V10L15 4Z"></path></svg>
+                        <span>Bookings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" data-target="restaurants">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11L12 3L21 11V20ZM19 18V12L12 5.69L5 12V18H19ZM13 13H11V16H13V13Z"></path></svg>
+                        <span>Restaurants</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" data-target="menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+                        <span>Menu</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link" data-target="special-events">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C11.4477 2 11 2.44772 11 3V4.0511C7.53856 4.55524 5 7.49836 5 11V12.046C5 13.6003 4.32189 15.0645 3.17811 16H20.8219C19.6781 15.0645 19 13.6003 19 12.046V11C19 7.49836 16.4614 4.55524 13 4.0511V3C13 2.44772 12.5523 2 12 2ZM9.5 17C9.5 18.3807 10.6193 19.5 12 19.5C13.3807 19.5 14.5 18.3807 14.5 17H9.5Z"></path></svg>
+                        <span>Special Events</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 
         <main class="main-content">
             
-                        <section id="bookings" class="content-section {% if not active_tab or active_tab == 'bookings' %}active{% endif %}">
+            <section id="bookings" class="content-section {% if not active_tab or active_tab == 'bookings' %}active{% endif %}">
                 <div class="card">
                     <h2>Bookings</h2>
-
-                    <!-- Booking content remains static for this example -->
                     <table>
                         <thead>
                             <tr>
                                 <th>Order ID</th>
                                 <th>Restaurant</th>
                                 <th>Status</th>
-                                <th>Reservation For</th>
+                                <th>Guests</th>
+                                <th>Booking Time</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#ORD123</td>
-                                <td>The Gourmet Kitchen</td>
-                                <td>Confirmed</td>
-                                <td>John Doe</td>
-                                <td class="action-buttons">
-                                    <button type="button" class="btn btn-edit">Edit</button>
-                                    <form action="/" method="POST" style="display: inline; margin: 0;">
-                                        <input type="hidden" name="id" value="ORD123">
-                                        <button type="submit" class="btn btn-delete">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
+                            {% if bookings %}
+                                {% for booking in bookings %}
+                                <tr>
+                                    <td>{{ booking.order_id }}</td>
+                                    <td>{{ booking.restaurant_id }}</td>
+                                    <td>
+                                        {{ booking.status}}</span>
+                                    </td>
+                                    <td>{{ booking.number_of_guests }}</td>
+                                    <td>{{ booking.booking_datetime.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                                    <td class="action-buttons">
+                                        
+                                        <form action="/confirm-booking" method="POST" style="display: inline;">
+                                            <input type="hidden" name="id" value="{{ booking.id }}">
+                                            <button type="submit" class="btn btn-primary">Confirm</button>
+                                        </form>
+                                        <form action="/pend-booking" method="POST" style="display: inline;">
+                                            <input type="hidden" name="id" value="{{ booking.id }}">
+                                            <button type="submit" class="btn btn-pending">Pend</button>
+                                        </form>
+                                        <form action="/cancel-booking" method="POST" style="display: inline;">
+                                            <input type="hidden" name="id" value="{{ booking.id }}">
+                                            <button type="submit" class="btn btn-delete">Cancel</button>
+                                        </form>
+            
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center;">No bookings found.</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
             </section>
+            
+
 
                         <section id="restaurants" class="content-section {% if active_tab == 'restaurants' %}active{% endif %}">
                 <div class="card">
@@ -456,7 +485,10 @@
                                 <td>{{ item.description }}</td>
                                 <td>${{ "%.2f"|format(item.price) }}</td>
                                 <td class="action-buttons">
-                                    <button class="btn btn-delete" data-id="{{ item.id }}">Delete</button>
+                                    <form action="/delete-menu-item" method="POST" style="display: inline;">
+                                        <input type="hidden" name="id" value="{{ item.id }}">
+                                        <button type="submit" class="btn btn-delete">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -518,8 +550,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if events %}
-                            {% for ev in events %}
+                            {% if restaurants %}
+                            {% for ev in restaurants%}
                             <tr>
                                 <td>{{ ev.event_name if ev.event_name else '—' }}</td>
                                 <td>{{ ev.name }}</td>
