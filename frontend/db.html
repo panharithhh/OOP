@@ -186,6 +186,11 @@
         }
 
         /* --- Buttons --- */
+        .form-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
         .btn {
             cursor: pointer;
             border: none;
@@ -209,8 +214,43 @@
             margin-right: 5px;
             text-decoration: none;
         }
+
+        .add-button{
+            display: flex;
+            justify-content: flex-end;
+        }
         .btn-edit { background-color: #ffc107; color: var(--dark-charcoal); border-radius: 6px; display: inline-block; }
         .btn-delete { background-color: var(--red); color: var(--white); }
+
+        /* Green Add button */
+        .btn-add {
+            background-color: var(--green);
+            color: var(--white);
+        }
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        /* Modal backdrop */
+        .modal-backdrop{
+            position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;z-index:1000;
+        }
+        .modal-backdrop.open{display:block;}
+        /* Close button */
+        .modal-close{position:absolute;top:12px;right:14px;background:transparent;border:none;font-size:1.5rem;color:var(--mid-gray);cursor:pointer;transition:color .2s;}
+        .modal-close:hover{color:var(--dark-charcoal);}
+
+        /* Modal card */
+        .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;max-width:600px;width:90%;background:var(--white);box-shadow:0 8px 30px rgba(0,0,0,0.15);border-radius:12px;padding:32px 36px;overflow-y:auto;max-height:80vh;}        
+        .modal.open{display:block;}
+
+        /* Header flex container */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
         /* --- Utilities --- */
         .table-picture {
@@ -254,6 +294,7 @@
                         <section id="bookings" class="content-section {% if not active_tab or active_tab == 'bookings' %}active{% endif %}">
                 <div class="card">
                     <h2>Bookings</h2>
+
                     <!-- Booking content remains static for this example -->
                     <table>
                         <thead>
@@ -262,6 +303,7 @@
                                 <th>Restaurant</th>
                                 <th>Status</th>
                                 <th>Reservation For</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -270,6 +312,13 @@
                                 <td>The Gourmet Kitchen</td>
                                 <td>Confirmed</td>
                                 <td>John Doe</td>
+                                <td class="action-buttons">
+                                    <button type="button" class="btn btn-edit">Edit</button>
+                                    <form action="/" method="POST" style="display: inline; margin: 0;">
+                                        <input type="hidden" name="id" value="ORD123">
+                                        <button type="submit" class="btn btn-delete">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -278,11 +327,16 @@
 
                         <section id="restaurants" class="content-section {% if active_tab == 'restaurants' %}active{% endif %}">
                 <div class="card">
-                    <h2>Restaurants</h2>
+
+                    <div class="section-header">
+                        <h2>Restaurants</h2>
+                        <button type="button" class="btn btn-add" onclick="openAddModal()">+ Add</button>
+                    </div>
+
                     <table>
                         <thead>
                             <tr>
-                                <th> ID</th>
+                                <th>ID</th>
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Address</th>
@@ -290,15 +344,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- This is now a Jinja2 template loop. It builds the table on the server. -->
                             {% for restaurant in restaurants %}
                             <tr>
                                 <td> {{ restaurant.id or 'NA' }}</td>
                                 <td>{{ restaurant.name or 'N/A' }}</td>
                                 <td>{{ restaurant.description or 'N/A' }}</td>
-                                <td><a href="{{ restaurant.address }}" target="_blank">View Map</a></td>
+                                <td><a href="{{ restaurant.address }}" target="_blank">{{ restaurant.address }}</a></td>
                                 <td class="action-buttons">
-                                   
+                                    <button type="button" class="btn btn-edit" onclick="populateEditForm('{{ restaurant.id }}','{{ restaurant.name }}','{{ restaurant.address }}','{{ restaurant.description }}')">Edit</button>
                                     <form action="/delete-restaurant" method="POST" style="display: inline; margin: 0;">
                                         <input type="hidden" name="id" value="{{ restaurant.id }}">
                                         <button type="submit" class="btn btn-delete">Delete</button>
@@ -313,9 +366,10 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="card">
+                <div class="modal" id="add-card">
+                    <button class="modal-close" onclick="closeAddModal()">&times;</button>
                     <h3>Add New Restaurant</h3>
-                    <form id="Delete restaurant" class="form-grid" method="POST" action="http://127.0.0.1:8000/send" enctype="multipart/form-data">
+                    <form id="add-restaurant-form" class="form-grid" method="POST" action="http://127.0.0.1:8000/send" enctype="multipart/form-data">
 
                         <div class="form-group">
                             <label for="name">Restaurant Name</label>
@@ -334,13 +388,16 @@
                             <input type="file" id="res-pictures" name="pictures" accept="image/*" multiple>
                         </div>
                         <div id="file-list" style="grid-column: 1 / -1;"></div>
-                        <button type="submit" class="btn btn-primary mt-20">Add Restaurant</button>
+                        <div style="display:flex;gap:10px;justify-content:center;">
+                            <button type="submit" class="btn btn-primary mt-20" style="flex:1;">Save Changes</button>
+                        </div>
                     </form>
                 </div>
 
-                <div class="card">
-                    <h3>Edit a restaurant</h3>
-                    <form id="Delete restaurant" class="form-grid" method="POST" action="http://127.0.0.1:8000/editrestaurant" enctype="multipart/form-data">
+                <div class="modal" id="edit-card">
+                    <button class="modal-close" onclick="closeEditModal()">&times;</button>
+                    <h3>Edit Restaurant</h3>
+                    <form id="edit-restaurant-form" class="form-grid" method="POST" action="http://127.0.0.1:8000/editrestaurant" enctype="multipart/form-data">
                         
                         <div class="form-group">
                             <label for="name">id</label>
@@ -363,7 +420,10 @@
                             <input type="file" id="res-pictures" name="pictures" accept="image/*" multiple>
                         </div>
                         <div id="file-list" style="grid-column: 1 / -1;"></div>
-                        <button type="submit" class="btn btn-primary mt-20">Add Restaurant</button>
+                        <div style="display:flex;gap:10px;justify-content:center;">
+                            <button type="submit" class="btn btn-primary mt-20" style="flex:1;">Save Changes</button>
+                            <button type="button" class="btn btn-delete mt-20" style="flex:1;" onclick="closeEditModal()">Cancel</button>
+                        </div>
                     </form>
                 </div>
             </section>
@@ -371,41 +431,54 @@
 
                 <section id="menu" class="content-section {% if active_tab == 'menu' %}active{% endif %}">
                 <div class="card">
-                    <h2>Menu Items</h2>
+                    <div class="section-header">
+                        <h2>Menu Items</h2>
+                        <button type="button" class="btn btn-add" onclick="openAddMenuModal()">+ Add</button>
+                    </div>
                     <table>
                         <thead>
                             <tr>
                                 <th>Image</th>
+                                <th> Restaurant ID</th>
                                 <th>Item Name</th>
-                                <th>Restaurant</th>
+                                <th>description</th>
                                 <th>Price</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Example Row -->
+                            {% if menu_data %} 
+                            {% for item in menu_data %}
                             <tr>
-                                <td><img src="https://via.placeholder.com/50" alt="Menu Item" class="table-picture"></td>
-                                <td>Classic Burger</td>
-                                <td>The Gourmet Kitchen</td>
-                                <td>$9.99</td>
+                                <td><img src="{{ item.image_url }}" alt="{{ item.item_name }}" class="table-picture"></td>
+                                <td>{{item.restaurant_id}}</td>
+                                <td>{{ item.item_name }}</td>
+                                <td>{{ item.description }}</td>
+                                <td>${{ "%.2f"|format(item.price) }}</td>
                                 <td class="action-buttons">
-                                                                        <button class="btn btn-delete">Delete</button>
+                                    <button class="btn btn-delete" data-id="{{ item.id }}">Delete</button>
                                 </td>
                             </tr>
+                            {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">No items to display.</td>
+                                </tr>
+                            {% endif %}
                             <!-- Data will be populated here, possibly with Jinja2 -->
                         </tbody>
                     </table>
                 </div>
 
-                <div class="card">
+                <!-- Add Menu Item Modal -->
+                <div class="modal" id="add-menu-modal">
+                    <button class="modal-close" onclick="closeAddMenuModal()">&times;</button>
                     <h3>Add New Menu Item</h3>
                     <form id="add-menu-item-form" class="form-grid" method="POST" action="/add-menu-item" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="menu-restaurant-select">Select Restaurant</label>
                             <select id="menu-restaurant-select" name="restaurant_id" required>
                                 <option value="" disabled selected>Choose a restaurant...</option>
-                                <!-- Options will be populated dynamically -->
                                 {% for restaurant in restaurants %}
                                 <option value="{{ restaurant.id }}">{{ restaurant.id }} – {{ restaurant.name }}</option>
                                 {% endfor %}
@@ -481,7 +554,6 @@
                             <label for="event-restaurant-select">Select Restaurant</label>
                             <select id="event-restaurant-select" name="restaurant_id" required>
                                 <option value="" disabled selected>Choose a restaurant...</option>
-                                <!-- Options will be populated dynamically -->
                                 {% for restaurant in restaurants %}
                                 <option value="{{ restaurant.id }}">{{ restaurant.id }} – {{ restaurant.name }}</option>
                                 {% endfor %}
@@ -489,7 +561,8 @@
                         </div>
                          <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="event-description">Description</label>
-                            <textarea id="event-description" name="description" rows="3"></textarea>
+                            <textarea id="event-description" name="event_description" rows="3"></textarea>
+
                         </div>
                         <button type="submit" class="btn btn-primary mt-20" style="grid-column: 1 / -1;">Add Event</button>
                     </form>
@@ -502,6 +575,7 @@
             </section>
 
         </main>
+    <div id="modal-backdrop" class="modal-backdrop" onclick="closeAddModal()"></div>
     </div>
 
     <script>
@@ -532,6 +606,7 @@
             const fileInput = document.getElementById('res-pictures');
             
             addRestaurantForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
                 
             
                 if (fileInput.files.length > 5) {
@@ -551,7 +626,6 @@
                     if (response.ok) {
                         alert('Restaurant added successfully!');
                         addRestaurantForm.reset();
-                        // Optionally, reload the page to see the new restaurant
                         window.location.reload(); 
                     } else {
                         alert('Failed to add restaurant. Please check the details.');
@@ -563,6 +637,44 @@
             });
         });
 
+        function openAddModal(){
+            document.getElementById('add-card')?.classList.add('open');
+            document.getElementById('modal-backdrop')?.classList.add('open');
+        }
+        function closeAddModal(){
+            document.getElementById('add-card')?.classList.remove('open');
+            document.getElementById('modal-backdrop')?.classList.remove('open');
+        }
+        function openAddMenuModal(){
+            document.getElementById('add-menu-modal')?.classList.add('open');
+            document.getElementById('modal-backdrop')?.classList.add('open');
+        }
+        function closeAddMenuModal(){
+            document.getElementById('add-menu-modal')?.classList.remove('open');
+            document.getElementById('modal-backdrop')?.classList.remove('open');
+        }
+        function scrollToAddRestaurant() {
+            const el = document.getElementById('add-restaurant-form');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+        function scrollToAddMenuItem() {
+            const el = document.getElementById('add-menu-item-form');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+        function closeEditModal(){
+            document.getElementById('edit-card')?.classList.remove('open');
+            document.getElementById('modal-backdrop')?.classList.remove('open');
+        }
+        function populateEditForm(id, name, address, description) {
+            const form = document.getElementById('edit-restaurant-form');
+            if (!form) return;
+            form.querySelector('input[name="id"]').value = id;
+            form.querySelector('input[name="name"]').value = name;
+            form.querySelector('input[name="address"]').value = address;
+            form.querySelector('textarea[name="description"]').value = description || '';
+            const modal=document.getElementById('edit-card');
+            if(modal){modal.classList.add('open');document.getElementById('modal-backdrop')?.classList.add('open');}
+        }
         // The 'fetchAndDisplayRestaurants' function has been REMOVED.
     </script>
 
