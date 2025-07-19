@@ -550,17 +550,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if restaurants %}
-                            {% for ev in restaurants%}
+                            {% if events %}
+                            {% for ev in events %}
                             <tr>
                                 <td>{{ ev.event_name if ev.event_name else '—' }}</td>
-                                <td>{{ ev.name }}</td>
+                                <td>{{ ev.restaurant_id }}</td>
                                 <td>{{ ev.event_datetime if ev.event_datetime else '—' }}</td>
                                 <td class="action-buttons">
                                     <form method="POST" action="/clear-event">
                                         <input type="hidden" name="id" value="{{ ev.id }}">
-                                        <button class="btn btn-delete">Empty</button>
-                                    </form>
+                                        <button type="submit" class="btn btn-delete">Clear</button>
+                                        </form>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -600,9 +600,6 @@
                     </form>
                 </div>
             </section>
-                </section>
-                
-            <section id="special-events" class="content-section">
                 <!-- Special Events content here -->
             </section>
 

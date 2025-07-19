@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+import smtplib
+from code_gen import gen_pass
 
 load_dotenv()
 
@@ -35,7 +37,17 @@ async def index_page(request: Request):
 
 @app.get("/authentication")
 async def authentication(request : Request):
+    return templates.TemplateResponse("authentication.html",{"request" : request})
     pass
+
+@app.post("/code")
+async def code(auth_code : Annotated[str, Form()], request : Request):
+    if (auth_code == gen_pass):
+        return RedirectResponse(url = "/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    else :
+        return RedirectResponse(url = "/authentication", status_code=status.HTTP_303_SEE_OTHER)
+    
+    
 @app.get("/admin")
 async def admin(request: Request):
     return templates.TemplateResponse("admin.html", {"request": request})
@@ -55,7 +67,7 @@ async def login_user(
     if not data or data[3] != password:
         return RedirectResponse(url="/admin", status_code=status.HTTP_303_SEE_OTHER)
 
-    return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url="/authentication", status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/dashboard")
 async def dashboard(
@@ -72,16 +84,24 @@ async def dashboard(
     cursor.execute(q2)
     menu_data = cursor.fetchall()
     
+    cursor.execute("select * from newestone.events")
+    events = cursor.fetchall()
+    
     cursor.execute("select * from newestone.bookings") 
     bookings = cursor.fetchall()
     cursor.close() 
-    return templates.TemplateResponse("db.html", {
-        "request": request,
-        "restaurants": restaurant_data,
-        "menu_data": menu_data,
-        "bookings" : bookings, 
-        "active_tab" : "tab" 
-    })
+    return templates.TemplateResponse(
+        "db.html",
+        {
+            "request": request,
+            "restaurants": restaurant_data,
+            "menu_data": menu_data,
+            "bookings": bookings,
+            "events" : events
+         
+        },
+    )
+
 
 @app.post("/send")
 async def send_data_of_restaurant(
@@ -165,22 +185,12 @@ async def add_event(
     db: mysql.connector.MySQLConnection = Depends(get_db),
 ):
     cursor = db.cursor()
-    update_query = "UPDATE newestone.restaurants SET event_name = %s, event_description = %s, event_datetime = %s WHERE id = %s"
+    update_query = "insert into newestone.events (event_name,event_description,event_datetime, restaurant_id) values (%s,%s,%s,%s) "
     cursor.execute(update_query, (name, event_description, datetime, restaurant_id))
     db.commit()
     cursor.close()
     return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
-@app.post("/delete-event")
-async def delete_event_by_id(
-    id: Annotated[int, Form()],
-    db: mysql.connector.MySQLConnection = Depends(get_db),
-):
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM newestone.restaurants WHERE id = %s", (id,))
-    db.commit()
-    cursor.close()
-    return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 @app.post("/clear-event")
 async def clear_event(
@@ -188,7 +198,7 @@ async def clear_event(
     db: mysql.connector.MySQLConnection = Depends(get_db),
 ):
     cursor = db.cursor()
-    clear_query = "UPDATE newestone.restaurants SET event_name = NULL, event_description = NULL, event_datetime = NULL WHERE id = %s"
+    clear_query = "delete from newestone.events WHERE id = %s"
     cursor.execute(clear_query, (id,))
     db.commit()
     cursor.close()

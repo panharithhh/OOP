@@ -4,3 +4,5 @@ python-dotenv
 mysql-connector-python
 Jinja2
 python-multipart
+fastapi[all]
+starlette-session
