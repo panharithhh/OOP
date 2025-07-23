@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIGHTBITE - Venue Details</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Link to your new external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    
+    <script>
+        // Custom Tailwind theme configuration
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-dark': '#121212',
+                        'brand-dark-secondary': '#1E1E1E',
+                        'brand-light': '#EAEAEA',
+                        'brand-accent': '#C84B31',
+                        'brand-gray': '#888888',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Style for the modal transition */
+        #booking-modal {
+            transition: opacity 0.3s ease;
+        }
+        /* Style to make date and time picker icons visible on dark backgrounds */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+    </style>
+</head>
+<body class="bg-brand-dark text-brand-light">
+
+    <!-- Header Section -->
+    <header class="bg-brand-dark-secondary">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold text-white tracking-wider">NIGHTBITE</h1>
+            <div class="w-1/3">
+                <input type="text" placeholder="Search" class="w-full p-2 bg-gray-700 border border-gray-600 text-brand-light rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-accent">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <a href="/userdb/userdash" class="inline-block text-brand-gray font-bold tracking-widest mb-6 hover:text-white transition-colors">← BACK</a>
+        <div class="bg-brand-dark-secondary h-64 md:h-96 rounded-lg flex items-center justify-center mb-8 border border-gray-800">
+            <span class="text-gray-600 text-3xl font-bold">{% if restaurant %}IMAGE {{ restaurant.name | default('Unknown') }}{% else %}IMAGE 1{% endif %}</span>
+        </div>
+        <div class="bg-brand-dark-secondary text-brand-light rounded-lg p-8 shadow-2xl">
+            <div class="flex flex-col md:flex-row justify-between items-start pb-6 border-b border-gray-700">
+                <div class="mb-6 md:mb-0">
+                    <h2 class="text-2xl font-bold mb-2">Details</h2>
+                    <p class="text-lg text-gray-300">{% if restaurant %}{{ restaurant.name | default('Unknown Venue') }}{% else %}No venue details available{% endif %}</p>
+                    <p class="text-lg text-gray-300">{% if restaurant %}{{ restaurant.description | default('No description') }}{% else %}No description{% endif %}</p>
+                    <p class="text-lg text-gray-300">{% if restaurant %}{{ restaurant.address | default('No address') }}{% else %}No address{% endif %}</p>
+                </div>
+                <div class="text-left md:text-right">
+                    <h2 class="text-2xl font-bold mb-2">Open / Closing Hours</h2>
+                    <p class="text-lg text-gray-300">Mon - Fri: 5:00 PM - 2:00 AM</p>
+                    <p class="text-lg text-gray-300">Sat - Sun: 3:00 PM - 3:00 AM</p>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end pt-6">
+                <div class="mb-6 md:mb-0">
+                    <h2 class="text-2xl font-bold mb-2">Menu</h2>
+                    <ul class="list-disc list-inside space-y-1 text-gray-300">
+                        <li>Spicy Wings - $12</li>
+                        <li>Craft Burger - $15</li>
+                    </ul>
+                </div>
+                <button id="booking-button" class="bg-brand-accent text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:brightness-110 transition-all">Bookings</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50 opacity-0">
+        <div class="bg-brand-dark-secondary p-6 rounded-lg w-full max-w-md relative">
+            <button id="close-modal" class="absolute top-2 right-3 text-gray-400 hover:text-white text-2xl font-bold">×</button>
+            <h2 class="text-xl font-bold mb-4 text-center text-white">Reservation</h2>
+            <form id="booking-form" action="/userdb/book" method="POST" class="space-y-4">
+                <input type="hidden" name="restaurant_id" value="{{ restaurant.restaurant_id if restaurant else 0 }}">
+                <div>
+                    <label for="people" class="block text-sm text-gray-300">People</label>
+                    <input type="number" id="people" name="people" min="1" value="2" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:ring-brand-accent">
+                </div>
+                <div>
+                    <label for="date" class="block text-sm text-gray-300">Date</label>
+                    <input type="date" id="date" name="date" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:ring-brand-accent">
+                </div>
+                <div>
+                    <label for="time" class="block text-sm text-gray-300">Time</label>
+                    <input type="time" id="time" name="time" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white focus:ring-brand-accent">
+                </div>
+                <button type="submit" class="w-full bg-brand-accent text-white font-bold py-2 px-4 rounded hover:brightness-110">Confirm</button>
+            </form>
+        </div>
+    </div>    
+
+    <script>
+        // --- Modal Logic ---
+        const bookingButton = document.getElementById('booking-button');
+        const modal = document.getElementById('booking-modal');
+        const closeModalButton = document.getElementById('close-modal');
+
+        // Function to open the modal
+        const openModal = () => {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+        };
+
+        // Function to close the modal
+        const closeModal = () => {
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        // Event listeners
+        bookingButton.addEventListener('click', openModal);
+        closeModalButton.addEventListener('click', closeModal);
+        
+        // Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close modal with the Escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+</html>

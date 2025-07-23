@@ -23,7 +23,7 @@
             display: flex;
             justify-content: center; /* Center content horizontally */
             align-items: center; /* Center content vertically */
-            background-image: url('foodpic.jpeg'); /* Your uploaded image filename */
+            background-image: url('/static/foodpic.jpeg');
             background-size: cover; /* Make image cover the entire area */
             background-position: center; /* Center the image */
             background-repeat: no-repeat; /* Prevent image repetition */
@@ -137,15 +137,19 @@
         }
 
     </style>
-</head> 
+</head>   
 <body>
 
     <div class="content-container">
         <h1 class="main-title">NightBite</h1>
         <p class="tagline">Placeholder random quote</p>
-        <a href="df.html" class="y">
-          Let's grab a meal
-        </a>
+    
+        <form action="/userd" method="post">
+            <button type="submit" class="y">
+                Let's grab a meal
+            </button>
+        </form>
+        
     </div>
 
 </body>
