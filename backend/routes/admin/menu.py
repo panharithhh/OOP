@@ -29,6 +29,34 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="../frontend/templates")
 
+@router.post("/admin_menu")
+async def admin_menu_post(id: Annotated[int, Form()], request: Request):
+    return RedirectResponse(url=f"/admin_menu/{id}", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/admin_menu/{restaurant_id}")
+async def admin_menu(request: Request, restaurant_id: int, db: mysql.connector.MySQLConnection = Depends(get_db_connection)):
+    """Render the Manage Menu page for a specific restaurant."""
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM newestone.restaurants WHERE id = %s", (restaurant_id,))
+    restaurant = cursor.fetchone()
+
+    cursor.execute("SELECT * FROM newestone.menu_items WHERE restaurant_id = %s", (restaurant_id,))
+    menu_items = cursor.fetchall()
+    cursor.close()
+
+    if not restaurant:
+        return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+
+    return templates.TemplateResponse(
+        "menu.html",
+        {
+            "request": request,
+            "restaurant": restaurant,
+            "menu_items": menu_items,
+        },
+    )
+
 
 
 @router.post("/add-menu-item")

@@ -65,6 +65,7 @@ async def details(
     restaurant_id: int,
     db: mysql.connector.MySQLConnection = Depends(get_db_connection),
 ):
+
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT id, name, description, address, ratings FROM newestone.restaurants WHERE id = %s", (restaurant_id,))
     restaurant = cursor.fetchone()
@@ -91,7 +92,7 @@ def book(
     db: mysql.connector.MySQLConnection = Depends(get_db_connection)
 ):
     cursor = db.cursor()
-    user_id = "user123"
+    user_id = "userwefw"
     status = "pending"
 
     datetime = "2025-12-12"
@@ -105,3 +106,5 @@ def book(
     db.close()
     
     return {"success": True, "message": f"Booking confirmed, status: {status}"}
+
+

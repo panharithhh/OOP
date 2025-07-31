@@ -62,3 +62,18 @@ async def cancel_booking(
     db.commit()
     cursor.close()
     return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/remove_all_bookings")
+async def remove_all_bookings(
+    confirm : Annotated[str, Form()],
+    db: mysql.connector.MySQLConnection = Depends(get_db_connection),
+):
+    cursor = db.cursor()
+    
+    if(confirm == "confirm"):
+        cursor.execute("delete from newestone.bookings")
+        db.commit()
+        cursor.close()
+        return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    else:
+        return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
