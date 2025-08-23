@@ -1,118 +1,141 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    FastAPI,
-    File,
-    Form,
-    Request,
-    status,
-    UploadFile
-)
-from fastapi.templating import Jinja2Templates
-from models.database import get_db_connection
-import mysql.connector
+from typing import List, Annotated, Optional
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from fastapi.responses import RedirectResponse
-from config.settings import settings
-import os
-import shutil
-from typing import List, Annotated
-from dotenv import load_dotenv
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-import smtplib
+import mysql.connector, os, shutil
+from models.database import get_db_connection
 
-
-router = APIRouter(
-    tags=["restaurants"]
-)
-
-templates = Jinja2Templates(directory="../frontend/templates")
-
+router = APIRouter(tags=["restaurants"])
 
 @router.post("/send")
 async def send_data_of_restaurant(
     name: Annotated[str, Form()],
     description: Annotated[str, Form()],
-    address: Annotated[str, Form()],
-    pictures: Annotated[List[UploadFile], File()],
+    longitude: Annotated[float, Form()],
+    latitude: Annotated[float, Form()],
+    tag: Annotated[Optional[str], Form()] = None,
+    price_range: Annotated[str, Form()] = "1",            # <- accept "$", "$$", or "1".."4"
+    pictures: Optional[List[UploadFile]] = File(None),
     db: mysql.connector.MySQLConnection = Depends(get_db_connection),
 ):
-    upload_folder = "../frontend/uploads"
-    cursor = db.cursor()
+    pr = price_range
+    tag = tag or None
 
-    cursor.execute("SELECT id FROM newestone.restaurants WHERE name = %s AND address = %s", (name, address))
-    existing = cursor.fetchone()
-    if existing:
-        restaurant_id = existing[0]
-    else:
-        cursor.execute(
-            "INSERT INTO newestone.restaurants (user_id, name, description, address) VALUES (%s, %s, %s, %s)",
-            (2, name, description, address)
+    upload_folder = "../frontend/static"
+    os.makedirs(upload_folder, exist_ok=True)
+    cur = db.cursor()
+
+    cur.execute(
+        "SELECT id FROM newestone.restaurants WHERE name=%s AND longitude=%s AND latitude=%s",
+        (name, longitude, latitude),
+    )
+    row = cur.fetchone()
+    if row:
+        restaurant_id = row[0]
+        cur.execute(
+            """UPDATE newestone.restaurants
+               SET description=%s, price_range=%s, tag=%s
+               WHERE id=%s""",
+            (description, pr, tag, restaurant_id),
         )
-        restaurant_id = cursor.lastrowid
+    else:
+        cur.execute(
+            """INSERT INTO newestone.restaurants
+               (user_id, name, description, longitude, latitude, price_range, tag)
+               VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+            (2, name, description, longitude, latitude, pr, tag),
+        )
+        restaurant_id = cur.lastrowid
 
-    image_query = "INSERT INTO newestone.image_for_restaurant (restaurant_id, image_url) VALUES (%s, %s)"
-    for picture in pictures:
-        file_location = os.path.join(upload_folder, picture.filename)
-        with open(file_location, "wb") as buffer:
-            shutil.copyfileobj(picture.file, buffer)
-        cursor.execute(image_query, (restaurant_id, f"/uploads/{picture.filename}"))
+    if pictures:
+        for picture in pictures:
+            if not picture or not picture.filename:
+                continue
+            path = os.path.join(upload_folder, picture.filename)
+            with open(path, "wb") as f:
+                shutil.copyfileobj(picture.file, f)
+            cur.execute(
+                "INSERT INTO newestone.image_for_restaurant (restaurant_id, image_url) VALUES (%s,%s)",
+                (restaurant_id, f"/static/{picture.filename}"),
+                
+                
+            )
 
+    
     db.commit()
-    cursor.close()
+    cur.close()
     return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+
 
 @router.post("/editrestaurant")
 async def edit_restaurant(
     id: Annotated[int, Form()],
     name: Annotated[str, Form()],
     description: Annotated[str, Form()],
-    address: Annotated[str, Form()],
-    pictures: Annotated[List[UploadFile], File()],
+    longitude: Annotated[float, Form()],
+    latitude: Annotated[float, Form()],
+    tag: Annotated[Optional[str], Form()] = None,
+    price_range: Annotated[str, Form()] = "1",            # <- accept "$", "$$", or "1".."4"
+    pictures: Optional[List[UploadFile]] = File(None),
     db: mysql.connector.MySQLConnection = Depends(get_db_connection),
 ):
-    upload_folder = "../frontend/uploads"
-    cursor = db.cursor()
+    pr = price_range
+    tag = tag or None
 
-    cursor.execute("DELETE FROM newestone.image_for_restaurant WHERE restaurant_id = %s", (id,))
-    cursor.execute(
-        "UPDATE newestone.restaurants SET name = %s, description = %s, address = %s WHERE id = %s",
-        (name, description, address, id)
+    upload_folder = "../frontend/static"
+    os.makedirs(upload_folder, exist_ok=True)
+    cur = db.cursor()
+
+    cur.execute(
+        """UPDATE newestone.restaurants
+           SET name=%s, description=%s, longitude=%s, latitude=%s, price_range=%s, tag=%s
+           WHERE id=%s""",
+        (name, description, longitude, latitude, pr, tag, id),
     )
 
-    image_query = "INSERT INTO newestone.image_for_restaurant (restaurant_id, image_url) VALUES (%s, %s)"
-    for picture in pictures:
-        file_location = os.path.join(upload_folder, picture.filename)
-        with open(file_location, "wb") as buffer:
-            shutil.copyfileobj(picture.file, buffer)
-        cursor.execute(image_query, (id, f"/uploads/{picture.filename}"))
+    if pictures:
+        cur.execute("DELETE FROM newestone.image_for_restaurant WHERE restaurant_id=%s", (id,))
+        for picture in pictures:
+            if not picture or not picture.filename:
+                continue
+            path = os.path.join(upload_folder, picture.filename)
+            with open(path, "wb") as f:
+                shutil.copyfileobj(picture.file, f)
+            cur.execute(
+                "INSERT INTO newestone.image_for_restaurant (restaurant_id, image_url) VALUES (%s,%s)",
+                (id, f"/static/{picture.filename}"),
+            )
 
     db.commit()
-    cursor.close()
+    cur.close()
     return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
-@router.post("/delete-restaurant")
-async def delete_by_id(
+@router.post("/delete-restaurant", name="delete_restaurant")
+async def delete_restaurant(
     id: Annotated[int, Form()],
     db: mysql.connector.MySQLConnection = Depends(get_db_connection),
 ):
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM newestone.restaurants WHERE id = %s", (id,))
-    db.commit()
-    cursor.close()
-    return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    cur = db.cursor()
+    try:
+        # delete children first (adjust table names to your schema)
+        cur.execute("DELETE FROM newestone.image_for_restaurant WHERE restaurant_id=%s", (id,))
+        cur.execute("DELETE FROM newestone.menu_items           WHERE restaurant_id=%s", (id,))
+        cur.execute("DELETE FROM newestone.events               WHERE restaurant_id=%s", (id,))  # if you have this
 
-@router.post("/add-event")
-async def add_event(
-    restaurant_id: Annotated[int, Form()],
-    name: Annotated[str, Form()],
-    event_description: Annotated[str, Form()],
-    datetime: Annotated[str, Form()],
-    db: mysql.connector.MySQLConnection = Depends(get_db_connection),
-):
-    cursor = db.cursor()
-    update_query = "insert into newestone.events (event_name,event_description,event_datetime, restaurant_id) values (%s,%s,%s,%s) "
-    cursor.execute(update_query, (name, event_description, datetime, restaurant_id))
-    db.commit()
-    cursor.close()
-    return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+        # delete the restaurant
+        cur.execute("DELETE FROM newestone.restaurants WHERE id=%s", (id,))
+        affected = cur.rowcount
+
+        if affected == 0:
+            db.rollback()
+            # redirect with a message (or raise 404 if you prefer JSON)
+            return RedirectResponse("/dashboard?msg=notfound", status_code=status.HTTP_303_SEE_OTHER)
+
+        db.commit()
+    except mysql.connector.Error as e:
+        db.rollback()
+        # If you still hit FK issues, your FKs don’t reference the tables above—inspect e.errno.
+        raise HTTPException(status_code=409, detail=f"Delete failed: {e.msg}")
+    finally:
+        cur.close()
+
+    return RedirectResponse("/dashboard?msg=deleted", status_code=status.HTTP_303_SEE_OTHER)

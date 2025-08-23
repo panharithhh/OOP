@@ -5,6 +5,11 @@ from config.settings import settings
 from models.database import get_db_connection
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+
 
 app = FastAPI()
 
@@ -26,7 +31,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="../frontend/static/"), name="static")
+BASE_DIR   = Path(__file__).resolve().parent
+STATIC_DIR = (BASE_DIR / ".." / "frontend" / "static").resolve()
+
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.on_event("startup")
 async def startup():

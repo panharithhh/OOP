@@ -36,7 +36,6 @@ async def admin_menu_post(id: Annotated[int, Form()], request: Request):
 
 @router.get("/admin_menu/{restaurant_id}")
 async def admin_menu(request: Request, restaurant_id: int, db: mysql.connector.MySQLConnection = Depends(get_db_connection)):
-    """Render the Manage Menu page for a specific restaurant."""
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM newestone.restaurants WHERE id = %s", (restaurant_id,))
     restaurant = cursor.fetchone()
