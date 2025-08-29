@@ -21,14 +21,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import smtplib
 
-
 router = APIRouter(
     tags=["bookings"]
 )
 
 templates = Jinja2Templates(directory="../frontend/templates")
-
-
 
 @router.post("/confirm-booking")
 async def confirm_booking(

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NIGHTBITE - Confirm Booking</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-dark': '#121212',
+            'brand-dark-secondary': '#1E1E1E',
+            'brand-light': '#EAEAEA',
+            'brand-accent': '#C84B31',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-brand-dark text-brand-light min-h-screen">
+  <!-- Header -->
+  <header class="bg-brand-dark-secondary">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/userdash" class="text-brand-light font-extrabold tracking-wider text-xl">NIGHTBITE</a>
+      {% set rid = (payload.get('restaurant_id') if payload else None) %}
+      <a href="{{ '/details/' ~ rid if rid else '/userdash' }}"
+         class="text-sm text-gray-300 hover:text-white">← Back</a>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-2xl mx-auto px-6 py-10">
+    <h1 class="text-3xl font-bold mb-6">Confirm your booking</h1>
+
+    <!-- Alerts -->
+    {% set err = request.query_params.get('err') %}
+    {% if err == 'expired' %}
+      <div class="mb-4 p-3 rounded bg-red-700/40 text-red-200">Your code expired. We sent a fresh one if you hit Resend.</div>
+    {% elif err == 'badcode' %}
+      <div class="mb-4 p-3 rounded bg-red-700/40 text-red-200">That code didn’t match. Try again or resend a new one.</div>
+    {% endif %}
+    {% if request.query_params.get('msg') == 'resent' %}
+      <div class="mb-4 p-3 rounded bg-emerald-700/40 text-emerald-200">A new code was sent. Check your inbox.</div>
+    {% endif %}
+
+    <!-- Booking summary -->
+    <div class="bg-brand-dark-secondary rounded-lg p-5 border border-gray-800 mb-6">
+      <h2 class="text-xl font-semibold mb-3">Summary</h2>
+      {% if payload %}
+        <dl class="grid grid-cols-2 gap-3 text-sm">
+          <dt class="text-gray-400">Email</dt>
+          <dd class="text-white">{{ payload.get('email') }}</dd>
+
+          <dt class="text-gray-400">Restaurant ID</dt>
+          <dd class="text-white">{{ payload.get('restaurant_id') }}</dd>
+
+          <dt class="text-gray-400">Guests</dt>
+          <dd class="text-white">{{ payload.get('people') }}</dd>
+
+          <dt class="text-gray-400">When</dt>
+          <dd class="text-white">{{ payload.get('booking_datetime') }}</dd>
+        </dl>
+      {% else %}
+        <p class="text-gray-300">No pending booking found.</p>
+      {% endif %}
+    </div>
+
+    <!-- OTP form -->
+    <form action="/booking/verify" method="POST" class="space-y-4">
+      <label for="code" class="block text-sm text-gray-300">Enter the 6-digit code sent to your email</label>
+      <input
+        id="code"
+        name="code"
+        type="text"
+        inputmode="numeric"
+        maxlength="6"
+        autocomplete="one-time-code"
+        placeholder="123456"
+        required
+        class="w-full p-3 rounded bg-gray-800 border border-gray-700 text-white tracking-widest text-center text-2xl"
+      />
+
+      {% if dev_otp %}
+        <div class="rounded-lg border border-emerald-800 bg-emerald-900/40 p-3">
+          <p class="text-emerald-200 text-xs mb-1">DEV OTP (for testing)</p>
+          <p class="font-mono text-2xl tracking-widest select-all">{{ dev_otp }}</p>
+        </div>
+      {% endif %}
+
+      <button
+        type="submit"
+        class="w-full bg-brand-accent hover:brightness-110 text-white font-semibold py-3 rounded">
+        Confirm Booking
+      </button>
+    </form>
+
+    <!-- Actions -->
+    <div class="mt-6 flex items-center gap-3">
+      <form action="/booking/resend" method="POST">
+        <button
+          type="submit"
+          class="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-sm font-semibold">
+          Resend Code
+        </button>
+      </form>
+
+      <form action="/booking/cancel" method="POST">
+        <button
+          type="submit"
+          class="px-4 py-2 rounded bg-gray-800 hover:bg-gray-700 text-sm text-gray-300">
+          Cancel
+        </button>
+      </form>
+
+      {% if rid %}
+        <a href="{{ '/details/' ~ rid }}"
+           class="ml-auto text-sm text-gray-300 hover:text-white underline underline-offset-4">
+          View restaurant
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="mt-8 bg-brand-dark-secondary rounded-lg p-6 border border-gray-800">
+      <h2 class="text-2xl font-bold mb-4">Rate this place</h2>
+    
+      {% if request.query_params.get('msg') == 'rated' %}
+        <div class="mb-4 p-3 rounded bg-emerald-700/40 text-emerald-200">
+          Thanks! Your rating was saved.
+        </div>
+      {% elif request.query_params.get('err') == 'rating' %}
+        <div class="mb-4 p-3 rounded bg-red-700/40 text-red-200">
+          Invalid rating. Please enter a number between 0 and 5.
+        </div>
+      {% endif %}
+    
+      <form action="/rate-restaurant" method="POST" class="flex items-end gap-3">
+        <input type="hidden" name="restaurant_id" value="{{ restaurant.restaurant_id }}"/>
+    
+        <div class="flex-1">
+          <label for="rating" class="block text-sm text-gray-300 mb-1">Your rating (0–5)</label>
+          <input
+            id="rating"
+            name="rating"
+            type="number"
+            min="0"
+            max="5"
+            step="0.5"
+            value="{{ restaurant.ratings if restaurant.ratings is not none else '' }}"
+            class="w-full p-3 rounded bg-gray-800 border border-gray-700 text-white"
+            required
+          />
+          <p class="text-xs text-gray-400 mt-1">Halves allowed (e.g.

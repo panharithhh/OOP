@@ -1,711 +1,557 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <style>
-        /* --- Modern White & Blue Theme --- */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
-        :root {
-            --primary-blue: #007BFF;
-            --primary-blue-light: #e6f2ff;
-            --dark-charcoal: #343a40;
-            --mid-gray: #6c757d;
-            --light-gray: #f8f9fa;
-            --border-color: #dee2e6;
-            --white: #ffffff;
-            --red: #dc3545;
-            --green: #28a745;
-        }
-
-        /* --- Base & Layout --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--light-gray);
-            color: var(--dark-charcoal);
-            font-size: 16px;
-        }
-
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* --- Sidebar --- */
-        .sidebar {
-            width: 260px;
-            background-color: var(--white);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-        }
-
-        .sidebar-header {
-            padding: 0 20px 20px 20px;
-            font-size: 1.25rem;
-            font-weight: 700;
-            text-align: center;
-            color: var(--primary-blue);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sidebar-nav {
-            list-style: none;
-            margin-top: 20px;
-        }
-
-        .sidebar-nav .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 25px;
-            color: var(--mid-gray);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .sidebar-nav .nav-link svg {
-            width: 20px;
-            height: 20px;
-        }
-        .sidebar-nav .nav-link:hover {
-            color: var(--primary-blue);
-            background-color: var(--primary-blue-light);
-        }
-        .sidebar-nav .nav-link.active {
-            color: var(--primary-blue);
-            background-color: var(--primary-blue-light);
-            font-weight: 600;
-        }
-
-        /* --- Main Content --- */
-        .main-content {
-            flex-grow: 1;
-            padding: 30px;
-            overflow: auto;
-        }
-        
-        .content-section {
-            display: none;
-        }
-        .content-section.active {
-            display: block;
-        }
-
-        .card {
-            background-color: var(--white);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-        
-        .card h2, .card h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        /* General status styling */
-.status-confirmed, .status-pending, .status-cancelled {
-    padding: 5px 10px;
-    border-radius: 12px;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-}
-
-        /* Specific colors for each status */
-        .status-confirmed {
-            background-color: #28a745; /* Green */
-        }
-
-        .status-pending {
-            background-color: #ffc107; /* Orange/Yellow */
-        }
-
-        .status-cancelled {
-            background-color: #dc3545; /* Red */
-        }
-
-        /* --- Tables --- */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
-            font-size: 0.95rem;
-        }
-        thead th {
-            font-weight: 600;
-            color: var(--dark-charcoal);
-        }
-        tbody tr:hover {
-            background-color: var(--light-gray);
-        }
-
-        /* --- Forms --- */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        label {
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 2px var(--primary-blue-light);
-        }
-
-        /* --- Buttons --- */
-        .form-container {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 18px;
-            font-weight: 500;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-        }
-        .btn-primary {
-            background-color: var(--primary-blue);
-            color: var(--white);
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .action-buttons button, .action-buttons a {
-            padding: 6px 10px;
-            font-size: 0.85rem;
-            margin-right: 5px;
-            text-decoration: none;
-        }
-
-        .add-button{
-            display: flex;
-            justify-content: flex-end;
-        }
-        .btn-edit { background-color: #ffc107; color: var(--dark-charcoal); border-radius: 6px; display: inline-block; }
-        .btn-delete { background-color: var(--red); color: var(--white); }
-
-        /* Green Add button */
-        .btn-add {
-            background-color: var(--green);
-            color: var(--white);
-        }
-        .btn-add:hover {
-            background-color: #218838;
-        }
-
-        /* Modal backdrop */
-        .modal-backdrop{
-            position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;z-index:1000;
-        }
-        .modal-backdrop.open{display:block;}
-        /* Close button */
-        .modal-close{position:absolute;top:12px;right:14px;background:transparent;border:none;font-size:1.5rem;color:var(--mid-gray);cursor:pointer;transition:color .2s;}
-        .modal-close:hover{color:var(--dark-charcoal);}
-
-        /* Modal card */
-        .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;max-width:600px;width:90%;background:var(--white);box-shadow:0 8px 30px rgba(0,0,0,0.15);border-radius:12px;padding:32px 36px;overflow-y:auto;max-height:80vh;}        
-        .modal.open{display:block;}
-
-        /* Header flex container */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        /* --- Utilities --- */
-        .table-picture {
-            width: 50px;
-            height: 50px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-        .mt-20 {
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    :root{--primary-blue:#007BFF;--primary-blue-light:#e6f2ff;--dark-charcoal:#343a40;--mid-gray:#6c757d;--light-gray:#f8f9fa;--border-color:#dee2e6;--white:#ffffff;--red:#dc3545;--green:#28a745}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Poppins',sans-serif;background:var(--light-gray);color:var(--dark-charcoal);font-size:16px}
+    .dashboard-container{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:var(--white);border-right:1px solid var(--border-color);display:flex;flex-direction:column;padding:20px 0}
+    .sidebar-header{padding:0 20px 20px;font-size:1.25rem;font-weight:700;text-align:center;color:var(--primary-blue);border-bottom:1px solid var(--border-color)}
+    .sidebar-nav{list-style:none;margin-top:20px}
+    .sidebar-nav .nav-link{display:flex;align-items:center;gap:15px;padding:12px 25px;color:var(--mid-gray);text-decoration:none;font-weight:500;transition:.3s all}
+    .sidebar-nav .nav-link svg{width:20px;height:20px}
+    .sidebar-nav .nav-link:hover{color:var(--primary-blue);background:var(--primary-blue-light)}
+    .sidebar-nav .nav-link.active{color:var(--primary-blue);background:var(--primary-blue-light);font-weight:600}
+    .main-content{flex-grow:1;padding:30px;overflow:auto}
+    .content-section{display:none}.content-section.active{display:block}
+    .card{background:var(--white);padding:25px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:30px}
+    .card h2,.card h3{margin:0 0 20px;font-weight:600}
+    .status-confirmed,.status-pending,.status-cancelled{padding:5px 10px;border-radius:12px;color:#fff;font-weight:bold;text-align:center}
+    .status-confirmed{background:#28a745}.status-pending{background:#ffc107;color:#212529}.status-cancelled{background:#dc3545}
+    table{width:100%;border-collapse:collapse}
+    th,td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--border-color);vertical-align:middle;font-size:.95rem}
+    thead th{font-weight:600;color:var(--dark-charcoal)}tbody tr:hover{background:var(--light-gray)}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+    .form-group{display:flex;flex-direction:column;gap:8px}
+    label{font-weight:500;font-size:.9rem}
+    input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border-color);border-radius:6px;font-family:'Poppins',sans-serif;font-size:1rem}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-blue);box-shadow:0 0 0 2px var(--primary-blue-light)}
+    .btn{cursor:pointer;border:none;border-radius:6px;padding:10px 18px;font-weight:500;font-size:1rem;transition:.2s all}
+    .btn-primary{background:var(--primary-blue);color:#fff}.btn-primary:hover{background:#0056b3}
+    .btn-delete{background:var(--red);color:#fff}.btn-edit{background:#ffc107;color:#212529;border-radius:6px;display:inline-block}
+    .btn-menu{background:var(--green);color:#fff;border-radius:6px;display:inline-block}.btn-menu:hover{background:#218838}
+    .btn-pending{background:#ffc107;color:#212529}.btn-add{background:var(--green);color:#fff}
+    .action-buttons button,.action-buttons a{padding:6px 10px;font-size:.85rem;margin-right:5px;text-decoration:none}
+    .table-picture{width:50px;height:50px;border-radius:6px;object-fit:cover}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:1000}
+    .modal-backdrop.open{display:block}
+    .modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;max-width:600px;width:90%;background:var(--white);box-shadow:0 8px 30px rgba(0,0,0,.15);border-radius:12px;padding:32px 36px;overflow-y:auto;max-height:80vh}
+    .modal.open{display:block}
+    .modal-close{position:absolute;top:12px;right:14px;background:transparent;border:none;font-size:1.5rem;color:var(--mid-gray);cursor:pointer;transition:color .2s}
+    .modal-close:hover{color:var(--dark-charcoal)}
+    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+    .back-link{display:inline-block;margin-bottom:20px;color:var(--primary-blue);text-decoration:none;font-weight:500}
+    .back-link:hover{text-decoration:underline}
+  </style>
 </head>
 <body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">ADMIN PANEL</div>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="nav-link active" data-target="bookings">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C5.343 3 4 4.343 4 6V20C4 21.105 4.895 22 6 22H18C19.105 22 20 21.105 20 20V7L17 3ZM16 14H8V12H16V14ZM16 18H8V16H16V18ZM15 4V8H19V10L15 4Z"/></svg>
+          <span>Bookings</span></a>
+        </li>
+        <li><a href="#" class="nav-link" data-target="restaurants">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11L12 3L21 11V20ZM19 18V12L12 5.69L5 12V18H19ZM13 13H11V16H13V13Z"/></svg>
+          <span>Restaurants</span></a>
+        <!-- </li>
+        <li><a href="#" class="nav-link" data-target="special-events">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C11.448 2 11 2.448 11 3V4.051C7.539 4.555 5 7.498 5 11V12.046C5 13.6 4.322 15.064 3.178 16H20.822C19.678 15.064 19 13.6 19 12.046V11C19 7.498 16.461 4.555 13 4.051V3C13 2.448 12.552 2 12 2ZM9.5 17C9.5 18.381 10.619 19.5 12 19.5C13.381 19.5 14.5 18.381 14.5 17H9.5Z"/></svg>
+          <span>Special Events</span></a>
+        </li> -->
+      </ul>
+    </nav>
 
-    <div class="dashboard-container">
-        <nav class="sidebar">
-            <div class="sidebar-header">ADMIN PANEL</div>
-            <ul class="sidebar-nav">
-                <li>
-                    <a href="#" class="nav-link" data-target="bookings">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C5.34315 3 4 4.34315 4 6V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V7L17 3ZM16 14H8V12H16V14ZM16 18H8V16H16V18ZM15 4V8H19V10L15 4Z"></path></svg>
-                        <span>Bookings</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link" data-target="restaurants">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11L12 3L21 11V20ZM19 18V12L12 5.69L5 12V18H19ZM13 13H11V16H13V13Z"></path></svg>
-                        <span>Restaurants</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link" data-target="menu">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
-                        <span>Menu</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link" data-target="special-events">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C11.4477 2 11 2.44772 11 3V4.0511C7.53856 4.55524 5 7.49836 5 11V12.046C5 13.6003 4.32189 15.0645 3.17811 16H20.8219C19.6781 15.0645 19 13.6003 19 12.046V11C19 7.49836 16.4614 4.55524 13 4.0511V3C13 2.44772 12.5523 2 12 2ZM9.5 17C9.5 18.3807 10.6193 19.5 12 19.5C13.3807 19.5 14.5 18.3807 14.5 17H9.5Z"></path></svg>
-                        <span>Special Events</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <main class="main-content">
-            
-            <section id="bookings" class="content-section {% if not active_tab or active_tab == 'bookings' %}active{% endif %}">
-                <div class="card">
-                    <h2>Bookings</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Restaurant</th>
-                                <th>Status</th>
-                                <th>Guests</th>
-                                <th>Booking Time</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if bookings %}
-                                {% for booking in bookings %}
-                                <tr>
-                                    <td>{{ booking.order_id }}</td>
-                                    <td>{{ booking.restaurant_id }}</td>
-                                    <td>
-                                        {{ booking.status}}</span>
-                                    </td>
-                                    <td>{{ booking.number_of_guests }}</td>
-                                    <td>{{ booking.booking_datetime.strftime('%Y-%m-%d %I:%M %p') }}</td>
-                                    <td class="action-buttons">
-                                        
-                                        <form action="/confirm-booking" method="POST" style="display: inline;">
-                                            <input type="hidden" name="id" value="{{ booking.id }}">
-                                            <button type="submit" class="btn btn-primary">Confirm</button>
-                                        </form>
-                                        <form action="/pend-booking" method="POST" style="display: inline;">
-                                            <input type="hidden" name="id" value="{{ booking.id }}">
-                                            <button type="submit" class="btn btn-pending">Pend</button>
-                                        </form>
-                                        <form action="/cancel-booking" method="POST" style="display: inline;">
-                                            <input type="hidden" name="id" value="{{ booking.id }}">
-                                            <button type="submit" class="btn btn-delete">Cancel</button>
-                                        </form>
-            
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="6" style="text-align: center;">No bookings found.</td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-            
-
-
-                        <section id="restaurants" class="content-section {% if active_tab == 'restaurants' %}active{% endif %}">
-                <div class="card">
-
-                    <div class="section-header">
-                        <h2>Restaurants</h2>
-                        <button type="button" class="btn btn-add" onclick="openAddModal()">+ Add</button>
-                    </div>
-
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Address</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for restaurant in restaurants %}
-                            <tr>
-                                <td> {{ restaurant.id or 'NA' }}</td>
-                                <td>{{ restaurant.name or 'N/A' }}</td>
-                                <td>{{ restaurant.description or 'N/A' }}</td>
-                                <td><a href="{{ restaurant.address }}" target="_blank">{{ restaurant.address }}</a></td>
-                                <td class="action-buttons">
-                                    <button type="button" class="btn btn-edit" onclick="populateEditForm('{{ restaurant.id }}','{{ restaurant.name }}','{{ restaurant.address }}','{{ restaurant.description }}')">Edit</button>
-                                    <form action="/delete-restaurant" method="POST" style="display: inline; margin: 0;">
-                                        <input type="hidden" name="id" value="{{ restaurant.id }}">
-                                        <button type="submit" class="btn btn-delete">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="4">No restaurants found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal" id="add-card">
-                    <button class="modal-close" onclick="closeAddModal()">&times;</button>
-                    <h3>Add New Restaurant</h3>
-                    <form id="add-restaurant-form" class="form-grid" method="POST" action="http://127.0.0.1:8000/send" enctype="multipart/form-data">
-
-                        <div class="form-group">
-                            <label for="name">Restaurant Name</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Location (GeoMap Link)</label>
-                            <input type="text" id="address" name="address" required>
-                        </div>
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="res-pictures">Pictures</label>
-                            <input type="file" id="res-pictures" name="pictures" accept="image/*" multiple>
-                        </div>
-                        <div id="file-list" style="grid-column: 1 / -1;"></div>
-                        <div style="display:flex;gap:10px;justify-content:center;">
-                            <button type="submit" class="btn btn-primary mt-20" style="flex:1;">Save Changes</button>
-                        </div>
+    <!-- Main -->
+    <main class="main-content">
+      <!-- Bookings -->
+      <section id="bookings" class="content-section active">
+        <div class="card">
+          <div class="section-header">
+            <h2>Bookings</h2>
+            <button type="button" class="btn btn-delete" onclick="openDeleteAllBookingsModal()">Delete All Bookings</button>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Order ID</th><th>Restaurant</th><th>Status</th><th>Guests</th><th>Booking Time</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {% if bookings %}
+                {% for booking in bookings %}
+                <tr>
+                  <td>{{ booking.order_id }}</td>
+                  <td>{{ booking.restaurant_id }}</td>
+                  <td><span class="status-{{ booking.status.lower() }}">{{ booking.status }}</span></td>
+                  <td>{{ booking.number_of_guests }}</td>
+                  <td>{{ booking.booking_datetime.strftime('%Y-%m-%d %I:%M %p') }}</td>
+                  <td class="action-buttons">
+                    <form action="/confirm-booking" method="POST" style="display:inline;">
+                      <input type="hidden" name="id" value="{{ booking.id }}"/><button type="submit" class="btn btn-primary">Confirm</button>
                     </form>
-                </div>
-
-                <div class="modal" id="edit-card">
-                    <button class="modal-close" onclick="closeEditModal()">&times;</button>
-                    <h3>Edit Restaurant</h3>
-                    <form id="edit-restaurant-form" class="form-grid" method="POST" action="http://127.0.0.1:8000/editrestaurant" enctype="multipart/form-data">
-                        
-                        <div class="form-group">
-                            <label for="name">id</label>
-                            <input type="int" id="id" name="id" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="name">Restaurant Name</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Location (GeoMap Link)</label>
-                            <input type="text" id="address" name="address" required>
-                        </div>
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="res-pictures">Pictures</label>
-                            <input type="file" id="res-pictures" name="pictures" accept="image/*" multiple>
-                        </div>
-                        <div id="file-list" style="grid-column: 1 / -1;"></div>
-                        <div style="display:flex;gap:10px;justify-content:center;">
-                            <button type="submit" class="btn btn-primary mt-20" style="flex:1;">Save Changes</button>
-                            <button type="button" class="btn btn-delete mt-20" style="flex:1;" onclick="closeEditModal()">Cancel</button>
-                        </div>
+                    <form action="/pend-booking" method="POST" style="display:inline;">
+                      <input type="hidden" name="id" value="{{ booking.id }}"/><button type="submit" class="btn btn-pending">Pend</button>
                     </form>
-                </div>
-            </section>
+                    <form action="/cancel-booking" method="POST" style="display:inline;">
+                      <input type="hidden" name="id" value="{{ booking.id }}"/><button type="submit" class="btn btn-delete">Cancel</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="6" style="text-align:center;">No bookings found.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Restaurants -->
+      <section id="restaurants" class="content-section">
+        <div class="card">
+          <div class="section-header">
+            <h2>Restaurants</h2>
+            <button type="button" class="btn btn-add" onclick="openAddModal()">+ Add</button>
+          </div>
+
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Name</th><th>Description</th><th>Longitude</th><th>Latitude</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              {% for restaurant in restaurants %}
+              <tr>
+                <td>{{ restaurant.id or 'NA' }}</td>
+                <td>{{ restaurant.name or 'N/A' }}</td>
+                <td>{{ restaurant.description or 'N/A' }}</td>
+                <td>{{ restaurant.longitude or '—' }}</td>
+                <td>{{ restaurant.latitude or '—' }}</td>
+                <td class="action-buttons" style="display:flex;gap:10px;">
+                  <button type="button" class="btn btn-edit edit-restaurant-btn"
+                          data-id="{{ restaurant.id }}"
+                          data-name="{{ restaurant.name }}"
+                          data-description="{{ restaurant.description }}"
+                          data-latitude="{{ restaurant.latitude }}"
+                          data-longitude="{{ restaurant.longitude }}"
+                          data-tag="{{ restaurant.tag }}">Edit</button>
+
+                  <a href="/admin_menu/{{ restaurant.id }}" class="btn btn-menu manage-menu-link"
+                     data-id="{{ restaurant.id }}" data-name="{{ restaurant.name }}">Manage Menu</a>
+
+                  <form action="/delete-restaurant" method="POST" style="display:inline;margin:0;">
+                    <input type="hidden" name="id" value="{{ restaurant.id }}"/>
+                    <button type="submit" class="btn btn-delete">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+                <tr><td colspan="6">No restaurants found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add Restaurant Modal -->
+        <div class="modal" id="add-card">
+          <button class="modal-close" onclick="closeAddModal()">&times;</button>
+          <h3>Add New Restaurant</h3>
+
+          <form id="add-restaurant-form" class="form-grid" method="POST" action="/send" enctype="multipart/form-data" novalidate>
+            <div class="form-group">
+              <label for="name">Restaurant Name</label>
+              <input type="text" id="name" name="name" required/>
+            </div>
+
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input type="text" id="longitude" name="longitude" inputmode="decimal" placeholder="104.92721978699137"/>
+            </div>
+
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input type="text" id="latitude" name="latitude" inputmode="decimal" placeholder="11.555021736445553"/>
+            </div>
+
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="price_range">PRICE RANGE</label>
+                <select id="price_range" name="price_range" required>
+                  <option value="">Choose a price range</option>
+                  <option value="1">$ (1)</option>
+                  <option value="2">$$ (2)</option>
+                  <option value="3">$$$ (3)</option>
+                  <option value="4">$$$$ (4)</option>
+                </select>
+              </div>
+
+            <div class="form-group">
+              <label for="tag">Cuisine Type</label>
+              <select id="tag" name="tag">
+                <option value="">Select a cuisine type</option>
+                <option value="asian">Asian</option><option value="western">Western</option>
+                <option value="khmer">Khmer</option><option value="japanese">Japanese</option>
+                <option value="korean">Korean</option><option value="pub">Pub</option>
+                <option value="club">Club</option><option value="bar">Bar</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="res-pictures">Pictures</label>
+              <input type="file" id="res-pictures" name="pictures" accept="image/*" multiple/>
+            </div>
+
+            <div id="file-list" style="grid-column:1 / -1;"></div>
+
+            <div style="display:flex;gap:10px;justify-content:center;">
+              <button type="submit" class="btn btn-primary mt-20" style="flex:1;" formnovalidate>Save Changes</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Edit Restaurant Modal -->
+        <div class="modal" id="edit-card">
+          <button class="modal-close" onclick="closeEditModal()">&times;</button>
+          <h3>Edit Restaurant</h3>
+
+          <form id="edit-restaurant-form" class="form-grid" method="POST" action="/editrestaurant" enctype="multipart/form-data" novalidate>
+            <input type="hidden" id="edit-id" name="id"/>
+
+            <div class="form-group">
+              <label for="edit-name">Restaurant Name</label>
+              <input type="text" id="edit-name" name="name" required/>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-longitude">Longitude</label>
+              <input type="text" id="edit-longitude" name="longitude" inputmode="decimal" placeholder="104.92721978699137"/>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-latitude">Latitude</label>
+              <input type="text" id="edit-latitude" name="latitude" inputmode="decimal" placeholder="11.555021736445553"/>
+            </div>
             
+            <!-- Rating (1–4 stars) -->
+<div class="form-group">
+    <label for="price_range">PRICE RANGE</label>
+    <select id="price_range" name="" required>
+      <option value="">Select a rating</option>
+      <option value="1">$ (1)</option>
+      <option value="2">$$ (2)</option>
+      <option value="3">$$$ (3)</option>
+      <option value="4">$$$$ (4)</option>
+    </select>
+  </div>
+  
+            <div class="form-group">
+              <label for="edit-tag">Cuisine Type</label>
+              <select id="edit-tag" name="tag">
+                <option value="">Select a cuisine type</option>
+                <option value="asian">Asian</option><option value="western">Western</option>
+                <option value="khmer">Khmer</option><option value="japanese">Japanese</option>
+                <option value="korean">Korean</option><option value="pub">Pub</option>
+                <option value="club">Club</option><option value="bar">Bar</option>
+              </select>
+            </div>
 
-                <section id="menu" class="content-section {% if active_tab == 'menu' %}active{% endif %}">
-                <div class="card">
-                    <div class="section-header">
-                        <h2>Menu Items</h2>
-                        <button type="button" class="btn btn-add" onclick="openAddMenuModal()">+ Add</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th> Restaurant ID</th>
-                                <th>Item Name</th>
-                                <th>description</th>
-                                <th>Price</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if menu_data %} 
-                            {% for item in menu_data %}
-                            <tr>
-                                <td><img src="{{ item.image_url }}" alt="{{ item.item_name }}" class="table-picture"></td>
-                                <td>{{item.restaurant_id}}</td>
-                                <td>{{ item.item_name }}</td>
-                                <td>{{ item.description }}</td>
-                                <td>${{ "%.2f"|format(item.price) }}</td>
-                                <td class="action-buttons">
-                                    <form action="/delete-menu-item" method="POST" style="display: inline;">
-                                        <input type="hidden" name="id" value="{{ item.id }}">
-                                        <button type="submit" class="btn btn-delete">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="5" style="text-align: center;">No items to display.</td>
-                                </tr>
-                            {% endif %}
-                            <!-- Data will be populated here, possibly with Jinja2 -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label for="edit-description">Description</label>
+              <textarea id="edit-description" name="description" rows="3" required></textarea>
+            </div>
 
-                <!-- Add Menu Item Modal -->
-                <div class="modal" id="add-menu-modal">
-                    <button class="modal-close" onclick="closeAddMenuModal()">&times;</button>
-                    <h3>Add New Menu Item</h3>
-                    <form id="add-menu-item-form" class="form-grid" method="POST" action="/add-menu-item" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="menu-restaurant-select">Select Restaurant</label>
-                            <select id="menu-restaurant-select" name="restaurant_id" required>
-                                <option value="" disabled selected>Choose a restaurant...</option>
-                                {% for restaurant in restaurants %}
-                                <option value="{{ restaurant.id }}">{{ restaurant.id }} – {{ restaurant.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="item-name">Item Name</label>
-                            <input type="text" id="item-name" name="name" required>
-                        </div>
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="item-description">Description</label>
-                            <textarea id="item-description" name="description" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="item-price">Price</label>
-                            <input type="text" id="item-price" name="price" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="item-picture">Picture</label>
-                            <input type="file" id="item-picture" name="picture" accept="image/*">
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-20" style="grid-column: 1 / -1;">Add Menu Item</button>
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label for="edit-pictures">Update Pictures (Select multiple to add)</label>
+              <input type="file" id="edit-pictures" name="pictures" accept="image/*" multiple/>
+              <p class="help-text">Note: All existing images will be replaced with the new selection</p>
+            </div>
+
+            <div style="display:flex;gap:10px;grid-column:1 / -1;">
+              <button type="submit" class="btn btn-primary" style="flex:1;" formnovalidate>Save Changes</button>
+              <button type="button" class="btn" onclick="closeEditModal()" style="flex:1;">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Special Events
+      <section id="special-events" class="content-section">
+        <div class="card">
+          <div class="section-header">
+            <h2>Special Events</h2>
+            <button type="button" class="btn btn-add" onclick="openAddEventModal()">+ Add</button>
+          </div>
+          <table>
+            <thead><tr><th>Event Name</th><th>Restaurant</th><th>Date and Time</th><th>Actions</th></tr></thead>
+            <tbody>
+              {% if events %}
+                {% for ev in events %}
+                <tr>
+                  <td>{{ ev.event_name if ev.event_name else '—' }}</td>
+                  <td>{{ ev.restaurant_id }}</td>
+                  <td>{{ ev.event_datetime if ev.event_datetime else '—' }}</td>
+                  <td class="action-buttons">
+                    <form method="POST" action="/clear-event" style="display:inline;">
+                      <input type="hidden" name="id" value="{{ ev.id }}"/><button type="submit" class="btn btn-delete">Clear</button>
                     </form>
-                </div>
-            </section>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="4">No events</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
 
-            <section id="special-events" class="content-section {% if active_tab == 'special-events' %}active{% endif %}">
-                <div class="card">
-                    <h2>Special Events</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Event Name</th>
-                                <th>Restaurant</th>
-                                <th>Date and Time</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if events %}
-                            {% for ev in events %}
-                            <tr>
-                                <td>{{ ev.event_name if ev.event_name else '—' }}</td>
-                                <td>{{ ev.restaurant_id }}</td>
-                                <td>{{ ev.event_datetime if ev.event_datetime else '—' }}</td>
-                                <td class="action-buttons">
-                                    <form method="POST" action="/clear-event">
-                                        <input type="hidden" name="id" value="{{ ev.id }}">
-                                        <button type="submit" class="btn btn-delete">Clear</button>
-                                        </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% else %}
-                            <tr><td colspan="4">No events</td></tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
+        <div class="modal" id="add-event-card">
+          <button class="modal-close" onclick="closeAddEventModal()">&times;</button>
+          <h3>Add Event</h3>
+          <form id="add-event-form" class="form-grid" method="POST" action="/add-event" enctype="multipart/form-data">
+            <div class="form-group"><label for="event-name">Event/Singer Name</label><input type="text" id="event-name" name="name" required/></div>
+            <div class="form-group"><label for="event-datetime">Time and Date</label><input type="datetime-local" id="event-datetime" name="datetime" required/></div>
+            <div class="form-group">
+              <label for="event-restaurant-select">Select Restaurant</label>
+              <select id="event-restaurant-select" name="restaurant_id" required>
+                <option value="" disabled selected>Choose a restaurant...</option>
+                {% for restaurant in restaurants %}<option value="{{ restaurant.id }}">{{ restaurant.id }} – {{ restaurant.name }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label for="event-description">Description</label>
+              <textarea id="event-description" name="event_description" rows="3"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;grid-column:1 / -1;">
+              <button type="submit" class="btn btn-primary" style="flex:1;">Add Event</button>
+              <button type="button" class="btn btn-delete" style="flex:1;" onclick="closeAddEventModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section> -->
 
-                <div class="card">
-                    <h3>Add Event</h3>
-                    <form id="add-event-form" class="form-grid" method="POST" action="/add-event" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="event-name">Event/Singer Name</label>
-                            <input type="text" id="event-name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="event-datetime">Time and Date</label>
-                            <input type="datetime-local" id="event-datetime" name="datetime" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="event-restaurant-select">Select Restaurant</label>
-                            <select id="event-restaurant-select" name="restaurant_id" required>
-                                <option value="" disabled selected>Choose a restaurant...</option>
-                                {% for restaurant in restaurants %}
-                                <option value="{{ restaurant.id }}">{{ restaurant.id }} – {{ restaurant.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                         <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="event-description">Description</label>
-                            <textarea id="event-description" name="event_description" rows="3"></textarea>
+      <!-- MENU MANAGER (menu.html embedded) -->
+      <section id="menu-manager" class="content-section">
+        <div class="card">
+          <a href="#" class="back-link" id="menu-back">← Back to Restaurants</a>
+          <h2 id="menu-title">Menu</h2>
+          <div id="menu-inner"><!-- fetched menu.html injected here --></div>
+        </div>
+      </section>
+    </main>
 
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-20" style="grid-column: 1 / -1;">Add Event</button>
-                    </form>
-                </div>
-            </section>
-                <!-- Special Events content here -->
-            </section>
-
-        </main>
-    <div id="modal-backdrop" class="modal-backdrop" onclick="closeAddModal()"></div>
+    <!-- Delete All Bookings Modal + Backdrop + Hidden form -->
+    <div class="modal" id="delete-all-bookings-modal">
+      <button class="modal-close" onclick="closeDeleteAllBookingsModal()">&times;</button>
+      <div class="modal-content">
+        <h3>Delete All Bookings</h3>
+        <p>This action cannot be undone. All booking records will be permanently deleted.</p>
+        <p>Type <strong>confirm</strong> to proceed:</p>
+        <input type="text" id="delete-confirm-input" class="form-control" style="margin:10px 0;"/>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <button type="button" class="btn" style="flex:1;" onclick="closeDeleteAllBookingsModal()">Cancel</button>
+          <button type="button" class="btn btn-delete" style="flex:1;" onclick="confirmDeleteAllBookings()">Delete All</button>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // --- Navigation and Form Submission Logic ---
-        // This JavaScript remains as it controls UI interactions that are not data-loading.
+    <div id="modal-backdrop" class="modal-backdrop"
+         onclick="closeAddModal();closeEditModal();closeAddEventModal();closeDeleteAllBookingsModal();"></div>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const contentSections = document.querySelectorAll('.content-section');
-            
-            // --- Navigation Logic ---
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const targetId = this.getAttribute('data-target');
-                    
-                    navLinks.forEach(navLink => navLink.classList.remove('active'));
-                    this.classList.add('active');
+    <form id="delete-all-bookings-form" method="POST" action="/remove_all_bookings" style="display:none;">
+      <input type="hidden" name="confirm" value="confirm"/>
+    </form>
+  </div>
 
-                    contentSections.forEach(section => {
-                        section.classList.toggle('active', section.id === targetId);
-                    });
-                });
-            });
+  <script>
+    // ---------------- Helpers & Nav ----------------
+    function showSection(id){
+      document.querySelectorAll('.content-section').forEach(s => s.classList.toggle('active', s.id === id));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.getAttribute('data-target') === id));
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', e => { e.preventDefault(); const t = link.getAttribute('data-target'); if(t) showSection(t); });
+      });
+    });
 
-            // --- Add Restaurant Form Submission Logic ---
-            const addRestaurantForm = document.getElementById('add-restaurant-form');
-            const fileInput = document.getElementById('res-pictures');
-            
-            addRestaurantForm.addEventListener('submit', async function(event) {
-                event.preventDefault();
-                
-            
-                if (fileInput.files.length > 5) {
-                    alert("You can only select 5 pictures");
-                    fileInput.value = '';
-                    return;
-                }
-            
-                const formData = new FormData(addRestaurantForm);
-            
-                try {
-                    const response = await fetch('http://127.0.0.1:8000/send', {
-                        method: 'POST',
-                        body: formData,
-                    });
+    // ---------- Lat/Lng cleaner (for both forms) ----------
+    function wireLatLngCleaner(formId, latId, lngId){
+      const form = document.getElementById(formId);
+      if(!form) return;
+      const latEl = document.getElementById(latId);
+      const lngEl = document.getElementById(lngId);
+      form.noValidate = true;
 
-                    if (response.ok) {
-                        alert('Restaurant added successfully!');
-                        addRestaurantForm.reset();
-                        window.location.reload(); 
-                    } else {
-                        alert('Failed to add restaurant. Please check the details.');
-                    }
-                } catch (error) {
-                    console.error('Form submission error:', error);
-                    alert('Something went wrong. Please try again.');
-                }
-            });
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Clean & parse
+        const clean = v => String(v||'').trim().replace(/,/g,'').replace(/[^\d\.\-]/g,'');
+        let lat = clean(latEl.value), lng = clean(lngEl.value);
+        let latNum = parseFloat(lat), lngNum = parseFloat(lng);
+
+        // Auto-swap if user pasted in reverse (common)
+        if (isFinite(latNum) && isFinite(lngNum) && Math.abs(latNum) > 90 && Math.abs(lngNum) <= 90){
+          const tmp = lat; lat = lng; lng = tmp;
+          latNum = parseFloat(lat); lngNum = parseFloat(lng);
+        }
+
+        // Clamp to valid ranges (optional)
+        if (isFinite(latNum))  latNum = Math.max(-90, Math.min(90, latNum));
+        if (isFinite(lngNum))  lngNum = Math.max(-180, Math.min(180, lngNum));
+
+        // Put cleaned values back so FastAPI can parse floats
+        if (!isNaN(latNum)) latEl.value = String(latNum);
+        if (!isNaN(lngNum)) lngEl.value = String(lngNum);
+
+        // Submit via fetch (AJAX)
+        const fd = new FormData(form);
+        try{
+          const resp = await fetch(form.action, { method: 'POST', body: fd });
+          if(resp.ok){
+            alert('Saved!');
+            form.reset();
+            location.reload();
+          }else{
+            const txt = await resp.text().catch(()=> '');
+            alert('Failed to save. ' + (txt || 'Please check your inputs.'));
+          }
+        }catch(err){
+          console.error(err);
+          alert('Network error. Try again.');
+        }
+      });
+    }
+    wireLatLngCleaner('add-restaurant-form',  'latitude',       'longitude');
+    wireLatLngCleaner('edit-restaurant-form', 'edit-latitude',  'edit-longitude');
+
+    // ---------- Add/Edit modals ----------
+    function openAddModal(){ document.getElementById('add-card')?.classList.add('open'); document.getElementById('modal-backdrop')?.classList.add('open'); }
+    function closeAddModal(){ document.getElementById('add-card')?.classList.remove('open'); document.getElementById('modal-backdrop')?.classList.remove('open'); }
+    function closeEditModal(){ document.getElementById('edit-card')?.classList.remove('open'); document.getElementById('modal-backdrop')?.classList.remove('open'); }
+
+    document.addEventListener('click', (event) => {
+      const btn = event.target.closest('.edit-restaurant-btn'); if(!btn) return;
+      document.getElementById('edit-id').value = btn.dataset.id || '';
+      document.getElementById('edit-name').value = btn.dataset.name || '';
+      document.getElementById('edit-description').value = btn.dataset.description || '';
+      document.getElementById('edit-latitude').value = btn.dataset.latitude || '';
+      document.getElementById('edit-longitude').value = btn.dataset.longitude || '';
+      document.getElementById('edit-tag').value = btn.dataset.tag || '';
+      document.getElementById('edit-card')?.classList.add('open');
+      document.getElementById('modal-backdrop')?.classList.add('open');
+    });
+
+    // ---------- Events modal ----------
+    function openAddEventModal(){ document.getElementById('add-event-card')?.classList.add('open'); document.getElementById('modal-backdrop')?.classList.add('open'); }
+    function closeAddEventModal(){ document.getElementById('add-event-card')?.classList.remove('open'); document.getElementById('modal-backdrop')?.classList.remove('open'); }
+
+    // ---------- Delete all bookings modal ----------
+    function openDeleteAllBookingsModal(){ document.getElementById('delete-all-bookings-modal')?.classList.add('open'); document.getElementById('modal-backdrop')?.classList.add('open'); const i=document.getElementById('delete-confirm-input'); if(i) i.value=''; }
+    function closeDeleteAllBookingsModal(){ document.getElementById('delete-all-bookings-modal')?.classList.remove('open'); document.getElementById('modal-backdrop')?.classList.remove('open'); }
+    function confirmDeleteAllBookings(){
+      const input = document.getElementById('delete-confirm-input');
+      if(input && input.value.toLowerCase() === 'confirm'){ document.getElementById('delete-all-bookings-form').submit(); }
+      else { alert('Please type "confirm" to delete all bookings.'); input?.focus(); }
+    }
+
+    // ---------- Embedded menu (menu.html inside) ----------
+    const menuBack = document.getElementById('menu-back');
+    if(menuBack){ menuBack.addEventListener('click', (e)=>{ e.preventDefault(); showSection('restaurants'); }); }
+
+    document.addEventListener('click', async (e) => {
+      const link = e.target.closest('.manage-menu-link'); if(!link) return;
+      e.preventDefault(); await loadMenuInsideAdmin(link.dataset.id, link.dataset.name || ('Restaurant #' + link.dataset.id));
+    });
+
+    async function loadMenuInsideAdmin(restaurantId, restaurantName){
+      try{
+        const res = await fetch(`/admin_menu/${restaurantId}`, { headers:{ 'X-Requested-With':'fetch' } });
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        const inner = document.getElementById('menu-inner'); inner.innerHTML = '';
+        const card = doc.querySelector('.card'); if(card) inner.appendChild(card);
+        const addModal = doc.querySelector('#add-menu-item-modal'); if(addModal){ addModal.id='embedded-add-menu-item-modal'; inner.appendChild(addModal); }
+        const backdrop = doc.querySelector('#modal-backdrop'); if(backdrop){ backdrop.id='embedded-menu-modal-backdrop'; inner.appendChild(backdrop); }
+
+        document.getElementById('menu-title').textContent = `Menu for ${restaurantName} (ID ${restaurantId})`;
+        showSection('menu-manager');
+
+        function openEmbedded(){ document.getElementById('embedded-add-menu-item-modal').style.display='block'; document.getElementById('embedded-menu-modal-backdrop').style.display='block'; document.body.style.overflow='hidden'; }
+        function closeEmbedded(){ document.getElementById('embedded-add-menu-item-modal').style.display='none';  document.getElementById('embedded-menu-modal-backdrop').style.display='none';  document.body.style.overflow=''; }
+
+        const addBtn = inner.querySelector('button[onclick="openAddMenuItemModal()"]'); if(addBtn){ addBtn.removeAttribute('onclick'); addBtn.addEventListener('click', openEmbedded); }
+        const closeBtn = inner.querySelector('button[onclick="closeAddMenuItemModal()"]'); if(closeBtn){ closeBtn.removeAttribute('onclick'); closeBtn.addEventListener('click', closeEmbedded); }
+        const embBackdrop = document.getElementById('embedded-menu-modal-backdrop'); if(embBackdrop){ embBackdrop.addEventListener('click', closeEmbedded); }
+
+        wireMenuForms(inner, restaurantId, restaurantName);
+      }catch(err){
+        console.error('Failed to load menu page:', err);
+        alert('Could not load menu. Opening the menu page instead.');
+        window.location.href = `/admin_menu/${restaurantId}`;
+      }
+    }
+
+    function wireMenuForms(scopeEl, restaurantId, restaurantName){
+      const addForm = scopeEl.querySelector('form[action="/add-menu-item"]');
+      if(addForm){
+        addForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          try{
+            const resp = await fetch('/add-menu-item', { method:'POST', body:new FormData(addForm) });
+            if(resp.ok){ document.getElementById('embedded-add-menu-item-modal').style.display='none'; document.getElementById('embedded-menu-modal-backdrop').style.display='none'; await loadMenuInsideAdmin(restaurantId, restaurantName); }
+            else alert('Failed to add item.');
+          }catch{ alert('Error adding item.'); }
         });
+      }
+      scopeEl.querySelectorAll('form[action="/delete-menu-item"]').forEach(f=>{
+        f.addEventListener('submit', async (e)=>{
+          e.preventDefault();
+          try{
+            const resp = await fetch('/delete-menu-item', { method:'POST', body:new FormData(f) });
+            if(resp.ok){ await loadMenuInsideAdmin(restaurantId, restaurantName); }
+            else alert('Failed to delete item.');
+          }catch{ alert('Error deleting item.'); }
+        });
+      });
+    }
 
-        function openAddModal(){
-            document.getElementById('add-card')?.classList.add('open');
-            document.getElementById('modal-backdrop')?.classList.add('open');
-        }
-        function closeAddModal(){
-            document.getElementById('add-card')?.classList.remove('open');
-            document.getElementById('modal-backdrop')?.classList.remove('open');
-        }
-        function openAddMenuModal(){
-            document.getElementById('add-menu-modal')?.classList.add('open');
-            document.getElementById('modal-backdrop')?.classList.add('open');
-        }
-        function closeAddMenuModal(){
-            document.getElementById('add-menu-modal')?.classList.remove('open');
-            document.getElementById('modal-backdrop')?.classList.remove('open');
-        }
-        function scrollToAddRestaurant() {
-            const el = document.getElementById('add-restaurant-form');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }
-        function scrollToAddMenuItem() {
-            const el = document.getElementById('add-menu-item-form');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }
-        function closeEditModal(){
-            document.getElementById('edit-card')?.classList.remove('open');
-            document.getElementById('modal-backdrop')?.classList.remove('open');
-        }
-        function populateEditForm(id, name, address, description) {
-            const form = document.getElementById('edit-restaurant-form');
-            if (!form) return;
-            form.querySelector('input[name="id"]').value = id;
-            form.querySelector('input[name="name"]').value = name;
-            form.querySelector('input[name="address"]').value = address;
-            form.querySelector('textarea[name="description"]').value = description || '';
-            const modal=document.getElementById('edit-card');
-            if(modal){modal.classList.add('open');document.getElementById('modal-backdrop')?.classList.add('open');}
-        }
-        // The 'fetchAndDisplayRestaurants' function has been REMOVED.
-    </script>
+    // ---------- Booking row actions (Confirm/Pend/Cancel) ----------
+    document.addEventListener('submit', async (e) => {
+      const form = e.target;
+      const action = (form.getAttribute('action') || '');
+      const isConfirm = action.includes('/confirm-booking');
+      const isCancel  = action.includes('/cancel-booking');
+      const isPend    = action.includes('/pend-booking');
+      if (!isConfirm && !isCancel && !isPend) return;
 
+      e.preventDefault();
+      const btn = form.querySelector('button'); if (btn){ btn.disabled = true; btn.textContent = 'Saving...'; }
+
+      try{
+        const resp = await fetch(action, { method:'POST', body:new FormData(form) });
+        if(!resp.ok) throw new Error('Request failed');
+        const row = form.closest('tr'); const chip = row?.querySelector('td:nth-child(3) span');
+        if (isConfirm && chip){ chip.textContent='confirmed'; chip.className='status-confirmed'; }
+        if (isCancel  && chip){ chip.textContent='cancelled'; chip.className='status-cancelled'; }
+        if (isPend    && chip){ chip.textContent='pending';   chip.className='status-pending'; }
+        if (btn) btn.style.display='none';
+      }catch(err){
+        console.error(err); alert('Could not update booking. Please try again.');
+        if(btn){ btn.disabled=false; btn.textContent = btn.classList.contains('btn-delete') ? 'Cancel' : (btn.classList.contains('btn-pending') ? 'Pend' : 'Confirm'); }
+      }
+    }, true);
+  </script>
 </body>
 </html>

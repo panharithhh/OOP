@@ -21,14 +21,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import smtplib
 
-
 router = APIRouter(
     tags=["dashboard"]
 )
 
 templates = Jinja2Templates(directory="../frontend/templates")
-
-
 
 @router.get("/dashboard")
 async def dashboard(
@@ -59,6 +56,5 @@ async def dashboard(
             "menu_data": menu_data,
             "bookings": bookings,
             "events" : events
-         
         },
     )
